@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE public.show_seats;
+ALTER TABLE public.show_seats REPLICA IDENTITY FULL;

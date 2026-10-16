@@ -1,0 +1,207 @@
+support,itemsets,item_count
+1.0,frozenset({'Kantara'}),1
+1.0,frozenset({'The Dark Knight'}),1
+1.0,"frozenset({'The Dark Knight', 'Kantara'})",2
+0.9,frozenset({'Dangal'}),1
+0.9,frozenset({'Jawan'}),1
+0.9,frozenset({'La La Land'}),1
+0.9,frozenset({'Oppenheimer'}),1
+0.9,frozenset({'RRR'}),1
+0.9,frozenset({'Pathaan'}),1
+0.9,frozenset({'Avengers Endgame'}),1
+0.9,frozenset({'Zindagi Na Milegi Dobara'}),1
+0.9,"frozenset({'The Dark Knight', 'Avengers Endgame'})",2
+0.9,"frozenset({'Kantara', 'Avengers Endgame'})",2
+0.9,frozenset({'Barbie'}),1
+0.9,"frozenset({'The Dark Knight', 'Dangal'})",2
+0.9,"frozenset({'Kantara', 'Jawan'})",2
+0.9,"frozenset({'Kantara', 'Oppenheimer'})",2
+0.9,"frozenset({'Kantara', 'Pathaan'})",2
+0.9,"frozenset({'Kantara', 'RRR'})",2
+0.9,"frozenset({'The Dark Knight', 'Jawan'})",2
+0.9,"frozenset({'Zindagi Na Milegi Dobara', 'Kantara'})",2
+0.9,"frozenset({'Kantara', 'La La Land'})",2
+0.9,"frozenset({'Barbie', 'Dangal'})",2
+0.9,"frozenset({'The Dark Knight', 'Pathaan'})",2
+0.9,"frozenset({'The Dark Knight', 'Oppenheimer'})",2
+0.9,"frozenset({'The Dark Knight', 'RRR'})",2
+0.9,"frozenset({'The Dark Knight', 'La La Land'})",2
+0.9,"frozenset({'Zindagi Na Milegi Dobara', 'La La Land'})",2
+0.9,"frozenset({'The Dark Knight', 'Zindagi Na Milegi Dobara'})",2
+0.9,"frozenset({'RRR', 'Oppenheimer'})",2
+0.9,"frozenset({'Pathaan', 'Avengers Endgame'})",2
+0.9,"frozenset({'Kantara', 'Dangal'})",2
+0.9,"frozenset({'The Dark Knight', 'Barbie'})",2
+0.9,"frozenset({'Kantara', 'Barbie'})",2
+0.8,"frozenset({'3 Idiots', 'Zindagi Na Milegi Dobara'})",2
+0.8,"frozenset({'3 Idiots', 'The Dark Knight'})",2
+0.8,"frozenset({'3 Idiots', 'La La Land'})",2
+0.8,"frozenset({'3 Idiots', 'Kantara'})",2
+0.8,"frozenset({'Avengers Endgame', 'Jawan'})",2
+0.8,"frozenset({'Dangal', 'Avengers Endgame'})",2
+0.8,"frozenset({'Barbie', 'Avengers Endgame'})",2
+0.8,frozenset({'KGF Chapter 1'}),1
+0.8,frozenset({'The Martian'}),1
+0.8,"frozenset({'La La Land', 'Jawan'})",2
+0.8,"frozenset({'KGF Chapter 1', 'Jawan'})",2
+0.8,"frozenset({'RRR', 'Jawan'})",2
+0.8,"frozenset({'Avengers Endgame', 'RRR'})",2
+0.8,"frozenset({'Avengers Endgame', 'Oppenheimer'})",2
+0.8,"frozenset({'Barbie', 'Pathaan'})",2
+0.8,"frozenset({'Barbie', 'La La Land'})",2
+0.8,"frozenset({'Barbie', 'RRR'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Barbie'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Avengers Endgame'})",2
+0.8,"frozenset({'Barbie', 'Jawan'})",2
+0.8,"frozenset({'Dangal', 'La La Land'})",2
+0.8,"frozenset({'Pathaan', 'Dangal'})",2
+0.8,"frozenset({'Dangal', 'RRR'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Dangal'})",2
+0.8,"frozenset({'Barbie', 'Oppenheimer'})",2
+0.8,"frozenset({'Dangal', 'Jawan'})",2
+0.8,"frozenset({'Dangal', 'Oppenheimer'})",2
+0.8,"frozenset({'The Dark Knight', 'Interstellar'})",2
+0.8,"frozenset({'KGF Chapter 1', 'The Martian'})",2
+0.8,"frozenset({'The Dark Knight', 'KGF Chapter 1'})",2
+0.8,"frozenset({'Kantara', 'KGF Chapter 1'})",2
+0.8,"frozenset({'Pathaan', 'RRR'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Pathaan'})",2
+0.8,"frozenset({'Pathaan', 'La La Land'})",2
+0.8,"frozenset({'Pathaan', 'Oppenheimer'})",2
+0.8,"frozenset({'Kantara', 'Interstellar'})",2
+0.8,"frozenset({'Pathaan', 'Jawan'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Jawan'})",2
+0.8,"frozenset({'The Martian', 'Jawan'})",2
+0.8,"frozenset({'Interstellar', 'The Martian'})",2
+0.8,"frozenset({'Oppenheimer', 'Jawan'})",2
+0.8,frozenset({'Inception'}),1
+0.8,frozenset({'3 Idiots'}),1
+0.8,frozenset({'Interstellar'}),1
+0.8,"frozenset({'Kantara', 'The Martian'})",2
+0.8,"frozenset({'RRR', 'La La Land'})",2
+0.8,"frozenset({'Interstellar', 'KGF Chapter 1'})",2
+0.8,"frozenset({'The Dark Knight', 'Inception'})",2
+0.8,"frozenset({'La La Land', 'Oppenheimer'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'Oppenheimer'})",2
+0.8,"frozenset({'The Dark Knight', 'The Martian'})",2
+0.8,"frozenset({'Avengers Endgame', 'La La Land'})",2
+0.8,"frozenset({'Kantara', 'Inception'})",2
+0.8,"frozenset({'Interstellar', 'Jawan'})",2
+0.8,"frozenset({'Zindagi Na Milegi Dobara', 'RRR'})",2
+0.7,"frozenset({'Avengers Endgame', 'The Martian'})",2
+0.7,"frozenset({'Barbie', 'Interstellar'})",2
+0.7,"frozenset({'Barbie', 'Inception'})",2
+0.7,"frozenset({'La La Land', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Taare Zameen Par', 'Avengers Endgame'})",2
+0.7,"frozenset({'Drishyam', 'La La Land'})",2
+0.7,"frozenset({'Kantara', 'Drishyam'})",2
+0.7,"frozenset({'The Dark Knight', 'Drishyam'})",2
+0.7,"frozenset({'Dangal', 'The Martian'})",2
+0.7,"frozenset({'Inception', 'La La Land'})",2
+0.7,"frozenset({'Zindagi Na Milegi Dobara', 'Drishyam'})",2
+0.7,"frozenset({'Inception', 'Jawan'})",2
+0.7,"frozenset({'Zindagi Na Milegi Dobara', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Zindagi Na Milegi Dobara', 'Interstellar'})",2
+0.7,"frozenset({'Interstellar', 'La La Land'})",2
+0.7,"frozenset({'Interstellar', 'Oppenheimer'})",2
+0.7,"frozenset({'Pathaan', 'Interstellar'})",2
+0.7,"frozenset({'RRR', 'Interstellar'})",2
+0.7,"frozenset({'Inception', 'Pathaan'})",2
+0.7,"frozenset({'Inception', 'RRR'})",2
+0.7,"frozenset({'Inception', 'The Martian'})",2
+0.7,"frozenset({'Zindagi Na Milegi Dobara', 'The Martian'})",2
+0.7,"frozenset({'Pathaan', 'The Martian'})",2
+0.7,"frozenset({'Pathaan', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Pathaan', '12th Fail'})",2
+0.7,"frozenset({'3 Idiots', 'Drishyam'})",2
+0.7,"frozenset({'The Dark Knight', '12th Fail'})",2
+0.7,"frozenset({'3 Idiots', 'Barbie'})",2
+0.7,"frozenset({'3 Idiots', 'Jawan'})",2
+0.7,"frozenset({'Inception', 'Avengers Endgame'})",2
+0.7,"frozenset({'3 Idiots', 'Pathaan'})",2
+0.7,"frozenset({'Avengers Endgame', 'Interstellar'})",2
+0.7,"frozenset({'Avengers Endgame', 'KGF Chapter 1'})",2
+0.7,"frozenset({'3 Idiots', 'Oppenheimer'})",2
+0.7,"frozenset({'3 Idiots', 'Dangal'})",2
+0.7,"frozenset({'Dangal', '12th Fail'})",2
+0.7,"frozenset({'3 Idiots', 'RRR'})",2
+0.7,"frozenset({'Barbie', '12th Fail'})",2
+0.7,"frozenset({'Avengers Endgame', '12th Fail'})",2
+0.7,frozenset({'Taare Zameen Par'}),1
+0.7,"frozenset({'Kantara', '12th Fail'})",2
+0.7,frozenset({'Drishyam'}),1
+0.7,frozenset({'12th Fail'}),1
+0.7,"frozenset({'3 Idiots', 'Avengers Endgame'})",2
+0.7,"frozenset({'Inception', 'Interstellar'})",2
+0.7,"frozenset({'Dangal', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Barbie', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Inception', 'Dangal'})",2
+0.7,"frozenset({'Barbie', 'The Martian'})",2
+0.7,"frozenset({'Dangal', 'Interstellar'})",2
+0.7,"frozenset({'Inception', 'KGF Chapter 1'})",2
+0.7,"frozenset({'Inception', 'Oppenheimer'})",2
+0.7,"frozenset({'Zindagi Na Milegi Dobara', 'Inception'})",2
+0.7,"frozenset({'The Dark Knight', 'Taare Zameen Par'})",2
+0.7,"frozenset({'RRR', 'The Martian'})",2
+0.7,"frozenset({'Pathaan', 'Taare Zameen Par'})",2
+0.7,"frozenset({'Taare Zameen Par', 'RRR'})",2
+0.7,"frozenset({'Kantara', 'Taare Zameen Par'})",2
+0.7,"frozenset({'Oppenheimer', 'The Martian'})",2
+0.7,"frozenset({'La La Land', 'The Martian'})",2
+0.7,"frozenset({'Taare Zameen Par', 'Oppenheimer'})",2
+0.7,"frozenset({'Taare Zameen Par', 'Jawan'})",2
+0.7,"frozenset({'Oppenheimer', 'KGF Chapter 1'})",2
+0.7,"frozenset({'RRR', 'KGF Chapter 1'})",2
+0.6,frozenset({'Andhadhun'}),1
+0.6,"frozenset({'3 Idiots', 'Inception'})",2
+0.6,"frozenset({'La La Land', '12th Fail'})",2
+0.6,"frozenset({'Barbie', 'Drishyam'})",2
+0.6,"frozenset({'Dangal', 'Drishyam'})",2
+0.6,"frozenset({'Pathaan', 'Drishyam'})",2
+0.6,"frozenset({'Drishyam', 'Oppenheimer'})",2
+0.6,"frozenset({'3 Idiots', 'KGF Chapter 1'})",2
+0.6,"frozenset({'RRR', '12th Fail'})",2
+0.6,"frozenset({'12th Fail', 'Jawan'})",2
+0.6,"frozenset({'3 Idiots', '12th Fail'})",2
+0.6,"frozenset({'Zindagi Na Milegi Dobara', '12th Fail'})",2
+0.6,"frozenset({'Oppenheimer', '12th Fail'})",2
+0.6,"frozenset({'3 Idiots', 'Interstellar'})",2
+0.6,"frozenset({'Inception', 'Andhadhun'})",2
+0.6,"frozenset({'3 Idiots', 'The Martian'})",2
+0.6,"frozenset({'Kantara', 'Andhadhun'})",2
+0.6,"frozenset({'La La Land', 'Andhadhun'})",2
+0.6,"frozenset({'Zindagi Na Milegi Dobara', 'Andhadhun'})",2
+0.6,"frozenset({'The Dark Knight', 'Andhadhun'})",2
+0.6,"frozenset({'Avengers Endgame', 'Drishyam'})",2
+0.6,"frozenset({'Taare Zameen Par', 'The Martian'})",2
+0.6,"frozenset({'Taare Zameen Par', 'La La Land'})",2
+0.6,"frozenset({'Barbie', 'Taare Zameen Par'})",2
+0.6,"frozenset({'Taare Zameen Par', 'Interstellar'})",2
+0.6,"frozenset({'Taare Zameen Par', 'KGF Chapter 1'})",2
+0.6,"frozenset({'Drishyam', 'RRR'})",2
+0.6,"frozenset({'Dangal', 'Taare Zameen Par'})",2
+0.6,"frozenset({'Drishyam', 'Jawan'})",2
+0.6,"frozenset({'Zindagi Na Milegi Dobara', 'Taare Zameen Par'})",2
+0.5,"frozenset({'Pathaan', 'Andhadhun'})",2
+0.5,"frozenset({'Oppenheimer', 'Andhadhun'})",2
+0.5,"frozenset({'Inception', '12th Fail'})",2
+0.5,"frozenset({'KGF Chapter 1', '12th Fail'})",2
+0.5,"frozenset({'Taare Zameen Par', '12th Fail'})",2
+0.5,"frozenset({'12th Fail', 'The Martian'})",2
+0.5,"frozenset({'3 Idiots', 'Andhadhun'})",2
+0.5,"frozenset({'Drishyam', '12th Fail'})",2
+0.5,"frozenset({'Interstellar', '12th Fail'})",2
+0.5,"frozenset({'RRR', 'Andhadhun'})",2
+0.5,"frozenset({'KGF Chapter 1', 'Andhadhun'})",2
+0.5,"frozenset({'The Martian', 'Andhadhun'})",2
+0.5,"frozenset({'Dangal', 'Andhadhun'})",2
+0.5,"frozenset({'Interstellar', 'Andhadhun'})",2
+0.5,"frozenset({'Andhadhun', 'Jawan'})",2
+0.5,"frozenset({'Barbie', 'Andhadhun'})",2
+0.5,"frozenset({'Avengers Endgame', 'Andhadhun'})",2
+0.5,"frozenset({'3 Idiots', 'Taare Zameen Par'})",2
+0.5,"frozenset({'Inception', 'Taare Zameen Par'})",2
+0.5,"frozenset({'Inception', 'Drishyam'})",2
+0.5,"frozenset({'Drishyam', 'The Martian'})",2
+0.5,"frozenset({'Drishyam', 'Interstellar'})",2
+0.5,"frozenset({'Drishyam', 'KGF Chapter 1'})",2

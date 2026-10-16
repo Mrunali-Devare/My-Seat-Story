@@ -1,0 +1,11 @@
+viewer_id,viewer_name,city,total_bookings,total_tickets,total_spending,average_booking_value,cluster,segment
+f1d89e99-b4e7-48ca-949e-bef86123648f,Ishita Patil,Mumbai,52,136,43850.0,843.27,1,High-Value Viewers
+1b8bf969-fcc8-440e-9557-89dd35336702,Kabir Singh,Delhi,41,111,32500.0,792.68,0,Regular Viewers
+09bd7ff1-8437-4426-8417-3d1795b1bc53,Aarav Sharma,Mumbai,39,102,31250.0,801.28,0,Regular Viewers
+90dd885e-582e-4344-a22e-aecaef0ee92f,Sneha Kulkarni,Delhi,43,103,30850.0,717.44,0,Regular Viewers
+9c1ae533-08c8-4bbc-8803-301f2e9bacf7,Ananya Desai,Pune,44,104,30650.0,696.59,0,Regular Viewers
+cd5acb60-22e7-42a4-b5a7-5045f0f3dd46,Meera Shah,Bengaluru,36,98,29300.0,813.89,0,Regular Viewers
+6e6005a6-46a3-4e63-bdce-cb7d51dcdad4,Rohan Mehta,Pune,34,95,26800.0,788.24,0,Regular Viewers
+ddaf81cd-9769-48ca-a7a1-5b8fc3d2b772,Aditya Rao,Bengaluru,39,89,26200.0,671.79,0,Regular Viewers
+18f92cf5-b3cc-4ccb-9256-79d2c60fb727,Arjun Nair,Hyderabad,37,86,25000.0,675.68,0,Regular Viewers
+570b5ecb-78c1-46f0-a3a6-8e3e13a84be2,Priya Joshi,Hyderabad,35,82,24700.0,705.71,0,Regular Viewers
