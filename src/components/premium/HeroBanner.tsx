@@ -63,13 +63,13 @@ export function HeroBanner({ movies }: HeroBannerProps) {
             <img
               src={currentMovie.backdrop_url}
               alt={currentMovie.title}
-              className="size-full object-cover"
+              className="size-full object-cover object-top"
             />
           ) : currentMovie.poster_url ? (
             <img
               src={currentMovie.poster_url}
               alt={currentMovie.title}
-              className="size-full object-cover"
+              className="size-full object-cover object-top"
             />
           ) : (
             <div className="size-full bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-card)]" />

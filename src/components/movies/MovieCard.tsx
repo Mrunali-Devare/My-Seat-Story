@@ -35,8 +35,8 @@ export function MovieCard({ movie }: { movie: MovieCardData }) {
                 src={movie.poster_url}
                 alt={movie.title}
                 loading="lazy"
-                className="size-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
-                whileHover={{ scale: 1.1 }}
+                className="size-full object-cover object-top transition-all duration-500 group-hover:brightness-110"
+                whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.5 }}
               />
             ) : (

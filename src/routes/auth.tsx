@@ -205,7 +205,7 @@ function AuthPage() {
           </div>
 
           <span className="font-display text-xl font-bold">
-            <span className="text-gradient-primary">Cine</span>verse
+            <span className="text-gradient-primary">My Seat </span>Story
           </span>
         </Link>
 
