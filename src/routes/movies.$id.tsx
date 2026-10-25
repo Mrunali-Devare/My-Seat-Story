@@ -52,7 +52,12 @@ useEffect(() => {
       return data;
     },
   });
-  const { data: shows = [], isLoading: isLoadingShows } = useQuery({
+  const {
+  data: shows = [],
+  isLoading: isLoadingShows,
+  isError: isShowsError,
+  error: showsError,
+} = useQuery({
   queryKey: ["movie-shows", id, city],
   enabled: !!movie && !!city,
   queryFn: async () => {
@@ -60,7 +65,7 @@ useEffect(() => {
     const { data: theatres, error: theatreError } = await supabase
       .from("theaters")
       .select("id,name,city,address")
-      .eq("city", city);
+      .ilike("city", city.trim());
 
     if (theatreError) throw theatreError;
 
@@ -214,49 +219,70 @@ for (const s of shows) {
 <p className="mt-1 text-sm text-muted-foreground">
   Pick a theatre and showtime to continue.
 </p>
-        {isLoadingShows ? (
+
+{isShowsError ? (
+  <div className="mt-8 rounded-2xl border border-destructive/40 p-6 text-center">
+    <p className="font-semibold">Unable to load showtimes.</p>
+    <p className="mt-2 text-sm text-muted-foreground">
+      {showsError instanceof Error
+        ? showsError.message
+        : "An unexpected error occurred."}
+    </p>
+  </div>
+) : isLoadingShows ? (
   <div className="mt-8 rounded-2xl border border-border bg-card/40 p-10 text-center text-muted-foreground">
     Loading showtimes in {city}…
   </div>
 ) : shows.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center text-muted-foreground">
-            No upcoming shows scheduled yet. Check back soon.
-          </div>
-        ) : (
-          <div className="mt-6 space-y-4">
-            {[...grouped.values()].map(({ theater, dates }) => (
-              <div key={theater.id} className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">{theater.name}</h3>
-                    <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="size-3" /> {theater.address}, {theater.city}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 space-y-4">
-                  {[...dates.entries()].map(([dateKey, slots]) => (
-                    <div key={dateKey}>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {formatShowDateOnly(slots[0].start_time)}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {slots.map((s) => (
-                          <Button key={s.id} asChild variant="outline" className="border-primary/40 bg-primary/5 text-foreground hover:bg-primary/15">
-                            <Link to="/book/$showId" params={{ showId: s.id }}>
-                              <span className="font-semibold">{formatShowTimeOnly(s.start_time)}</span>
-                              <span className="ml-2 text-xs text-muted-foreground">from {inr(Number(s.base_price))}</span>
-                            </Link>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+  <div className="mt-8 rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center text-muted-foreground">
+    No upcoming shows scheduled yet. Check back soon.
+  </div>
+) : (
+  <div className="mt-6 space-y-4">
+    {[...grouped.values()].map(({ theater, dates }) => (
+      <div
+        key={theater.id}
+        className="rounded-2xl border border-border/60 bg-card p-5 shadow-card"
+      >
+        <div>
+          <h3 className="text-lg font-semibold">{theater.name}</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            <MapPin className="mr-1 inline size-3" />
+            {theater.address}, {theater.city}
+          </p>
+        </div>
+
+        <div className="mt-4 space-y-4">
+          {[...dates.entries()].map(([dateKey, slots]) => (
+            <div key={dateKey}>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {formatShowDateOnly(slots[0].start_time)}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {slots.map((s) => (
+                  <Button
+                    key={s.id}
+                    asChild
+                    variant="outline"
+                    className="border-primary/40 bg-primary/5 text-foreground hover:bg-primary/15"
+                  >
+                    <Link
+                      to="/book/$showId"
+                      params={{ showId: s.id }}
+                    >
+                      {formatShowTimeOnly(s.start_time)} · {inr(s.base_price)}
+                    </Link>
+                  </Button>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
             </section>
 
       <MovieReviews movieId={movie.id} />

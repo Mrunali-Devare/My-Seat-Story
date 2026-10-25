@@ -102,15 +102,15 @@
   --sidebar-border: oklch(0.28 0.04 280 / 40%);
   --sidebar-ring: oklch(0.55 0.20 25);
 
-  /* Seat tokens */
-  --seat-available: oklch(0.30 0.05 280);
-  --seat-selected: oklch(0.75 0.15 85);
-  --seat-booked: oklch(0.22 0.03 280 / 50%);
-  --seat-locked: oklch(0.50 0.08 45);
-  --seat-premium: oklch(0.45 0.12 280);
-  --seat-vip: oklch(0.55 0.18 25);
-  --seat-recliner: oklch(0.60 0.22 25);
-
+    /* Seat tokens - improved contrast */
+  --seat-available: oklch(0.32 0.07 280);
+  --seat-selected: oklch(0.78 0.16 85);
+  --seat-booked: oklch(0.40 0.015 280);
+  --seat-locked: oklch(0.42 0.09 45);
+  --seat-premium: oklch(0.48 0.16 285);
+  --seat-vip: oklch(0.58 0.22 25);
+  --seat-recliner: oklch(0.62 0.20 15);
+  
   --gradient-hero: linear-gradient(135deg, oklch(0.20 0.05 280) 0%, oklch(0.15 0.02 280) 50%, oklch(0.18 0.06 280) 100%);
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
   --gradient-gold: linear-gradient(135deg, oklch(0.75 0.15 85) 0%, oklch(0.80 0.18 85) 100%);

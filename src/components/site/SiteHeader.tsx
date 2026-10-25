@@ -33,7 +33,6 @@ const CITIES = [
   "Delhi",
   "Bengaluru",
   "Hyderabad",
-  "Chennai",
   "Pune",
 ];
 
