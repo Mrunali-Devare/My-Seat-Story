@@ -1,4 +1,5 @@
 import { AprioriRecommendations } from "@/components/movies/AprioriRecommendations";
+import { ClusterRecommendations } from "@/components/movies/ClusterRecommendations";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -9,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatShowTimeOnly, formatShowDateOnly, inr } from "@/lib/format";
 import { MovieReviews } from "@/components/movies/MovieReviews";
+import { Poster, Backdrop } from "@/components/ui/poster";
 
 export const Route = createFileRoute("/movies/$id")({
   component: MoviePage,
   head: ({ params }) => ({
     meta: [
-      { title: `Movie · Cineverse` },
-      { name: "description", content: `Book tickets for movie ${params.id} on Cineverse.` },
+      { title: `Movie · My Seat Story` },
+      { name: "description", content: `Book tickets for movie ${params.id} on My Seat Story.` },
     ],
   }),
 });
@@ -166,9 +168,9 @@ for (const s of shows) {
 
       {/* Banner */}
       <section className="relative isolate overflow-hidden">
-        {movie.backdrop_url && (
+        {(movie.backdrop_url || movie.poster_url) && (
           <div className="absolute inset-0 -z-10">
-            <img src={movie.backdrop_url} alt="" className="size-full object-cover opacity-30" />
+            <Backdrop src={movie.backdrop_url ?? movie.poster_url} className="size-full object-cover opacity-30 blur-[2px]" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40" />
           </div>
         )}
@@ -178,14 +180,14 @@ for (const s of shows) {
           </Link>
           <div className="mt-6 grid gap-8 md:grid-cols-[260px_1fr]">
             <div className="aspect-[2/3] w-full max-w-[260px] overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/40">
-              {movie.poster_url ? <img src={movie.poster_url} alt={movie.title} className="size-full object-cover" /> : null}
+              <Poster src={movie.poster_url} title={movie.title} />
             </div>
             <div>
               <h1 className="text-4xl font-bold sm:text-5xl">{movie.title}</h1>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1 text-foreground">
                   <Star className="size-4 fill-[color:var(--color-gold)] text-[color:var(--color-gold)]" />
-                  <span className="font-semibold">{(movie.rating ?? 0).toFixed(1)}</span>/5
+                  <span className="font-semibold">{(movie.rating ?? 0).toFixed(1)}</span>/10
                 </span>
                 <span className="inline-flex items-center gap-1"><Clock className="size-4" /> {movie.duration_minutes}m</span>
                 <span className="inline-flex items-center gap-1"><Languages className="size-4" /> {movie.languages.join(", ")}</span>
@@ -260,6 +262,8 @@ for (const s of shows) {
             </section>
 
       <MovieReviews movieId={movie.id} />
+
+<ClusterRecommendations movieId={movie.id} />
 
 <AprioriRecommendations movieTitle={movie.title} />
     </div>

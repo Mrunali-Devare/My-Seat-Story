@@ -1,19 +1,22 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import {
   Film,
-  LogOut,
+  Check,
+  ChevronDown,
   Search,
   Ticket,
-  User as UserIcon,
   LayoutDashboard,
   Menu,
   X,
   Clock3,
   Trash2,
+  LogOut,
 } from "lucide-react";
+import logo from "@/assets/My Seat Story Cinema Logo.png";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { AUTO_DEMO, DEMO_PERSONAS, switchPersona, usePersona } from "@/lib/demo-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,10 +50,21 @@ const SEARCH_HISTORY_KEY = "cineverse-search-history";
 const MAX_SEARCH_HISTORY = 5;
 
 export function SiteHeader() {
-  const { user, roles } = useAuth();
+  const { user, roles, isDemo } = useAuth();
   const router = useRouter();
-
   const isManager = roles.includes("manager") || roles.includes("admin");
+  const activePersona = usePersona();
+  const handleSwitchPersona = switchPersona;
+  const showPersonas = isDemo;
+  const displayName = showPersonas
+    ? activePersona.name
+    : isDemo
+      ? "Demo Manager"
+      : (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0] || "Account";
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.navigate({ to: "/auth" });
+  };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -213,19 +227,6 @@ useEffect(() => {
     });
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    router.navigate({ to: "/" });
-  };
-
-  const initial = (
-    user?.user_metadata?.full_name ||
-    user?.email ||
-    "U"
-  )
-    .charAt(0)
-    .toUpperCase();
-
   return (
     <header
       className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 ${
@@ -237,13 +238,7 @@ useEffect(() => {
       <div className="container mx-auto flex h-16 items-center gap-4 px-4">
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-2 shrink-0">
-          <div className="rounded-xl transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-primary-glow)] p-2 shadow-glow">
-            <Film className="size-6 text-white" />
-          </div>
-
-          <span className="font-display text-xl font-bold tracking-tight hidden sm:block">
-            <span className="text-gradient-primary">Cine</span>verse
-          </span>
+          <img src={logo} alt="My Seat Story" className="h-11 w-auto transition-transform duration-300 group-hover:scale-105" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -266,6 +261,14 @@ useEffect(() => {
               My Bookings
             </Link>
           )}
+
+          <Link
+            to="/manager"
+            className={NAV_LINK}
+            activeProps={{ className: NAV_LINK_ACTIVE }}
+          >
+            Manager
+          </Link>
         </nav>
 
         {/* Right side actions */}
@@ -299,73 +302,71 @@ useEffect(() => {
             <Search className="size-5" />
           </Button>
 
-          {/* User menu */}
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="gap-2 px-2 hover:bg-white/10"
-                >
-                  <Avatar className="size-9 border border-white/20">
-                    <AvatarFallback className="bg-[color:var(--color-primary)]/20 text-[color:var(--color-primary)] font-semibold">
-                      {initial}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent
-                align="end"
-                className="w-56 bg-[color:var(--color-card)] border-white/10"
-              >
-                <DropdownMenuLabel className="text-white">
-                  {user.email}
-                </DropdownMenuLabel>
-
-                <DropdownMenuSeparator className="bg-white/10" />
-
-                <DropdownMenuItem
-                  onClick={() => router.navigate({ to: "/profile" })}
-                  className="text-white/80 hover:text-white hover:bg-white/10"
-                >
-                  <UserIcon className="mr-2 size-4" />
-                  Profile
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() => router.navigate({ to: "/bookings" })}
-                  className="text-white/80 hover:text-white hover:bg-white/10"
-                >
-                  <Ticket className="mr-2 size-4" />
-                  My Bookings
-                </DropdownMenuItem>
-
-                {isManager && (
-                  <DropdownMenuItem
-                    onClick={() => router.navigate({ to: "/manager" })}
-                    className="text-white/80 hover:text-white hover:bg-white/10"
-                  >
-                    <LayoutDashboard className="mr-2 size-4" />
-                    Manager
-                  </DropdownMenuItem>
-                )}
-
-                <DropdownMenuSeparator className="bg-white/10" />
-
-                <DropdownMenuItem
-                  onClick={signOut}
-                  className="text-white/80 hover:text-white hover:bg-white/10"
-                >
-                  <LogOut className="mr-2 size-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <PremiumButton asChild variant="crimson" size="sm">
+          {/* Account menu (demo accounts also get the persona switcher) */}
+          {!user && AUTO_DEMO ? null : !user ? (
+            <Button asChild variant="ghost" className="text-white hover:bg-white/10">
               <Link to="/auth">Sign in</Link>
-            </PremiumButton>
+            </Button>
+          ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-2 px-2 hover:bg-white/10" aria-label="Account menu">
+                <Avatar className="size-9 border border-white/20">
+                  <AvatarFallback className="bg-[color:var(--color-primary)]/20 text-[color:var(--color-primary)] font-semibold">
+                    {displayName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden text-sm text-white lg:inline">{displayName}</span>
+                <ChevronDown className="hidden size-4 text-white/50 lg:inline" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-64 bg-[color:var(--color-card)] border-white/10">
+              {showPersonas && (
+                <>
+              <DropdownMenuLabel className="text-xs uppercase tracking-wider text-white/50">
+                Demo mode · switch user
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-white/10" />
+              {DEMO_PERSONAS.map((persona) => (
+                <DropdownMenuItem
+                  key={persona.id}
+                  onClick={() => handleSwitchPersona(persona.id)}
+                  className="flex items-start gap-2 text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium">{persona.name}</p>
+                    <p className="text-xs text-white/50">{persona.tagline}</p>
+                  </div>
+                  {persona.id === activePersona.id && <Check className="mt-1 size-4 text-[color:var(--color-primary)]" />}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator className="bg-white/10" />
+                </>
+              )}
+              <DropdownMenuItem
+                onClick={() => router.navigate({ to: "/bookings" })}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <Ticket className="mr-2 size-4" />
+                My Bookings
+              </DropdownMenuItem>
+              {isManager && (
+                <DropdownMenuItem
+                  onClick={() => router.navigate({ to: "/manager" })}
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <LayoutDashboard className="mr-2 size-4" />
+                  Manager
+                </DropdownMenuItem>
+              )}
+              {!AUTO_DEMO && <DropdownMenuSeparator className="bg-white/10" />}
+              {!AUTO_DEMO && <DropdownMenuItem onClick={handleSignOut} className="text-white/80 hover:text-white hover:bg-white/10">
+                <LogOut className="mr-2 size-4" />
+                Sign out
+              </DropdownMenuItem>}
+            </DropdownMenuContent>
+          </DropdownMenu>
           )}
 
           {/* Mobile menu */}
@@ -567,15 +568,15 @@ useEffect(() => {
               </Link>
             )}
 
-            {!user && (
-              <Link
-                to="/auth"
-                className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign in
-              </Link>
-            )}
+            <Link
+              to="/manager"
+              className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 rounded-lg transition-all duration-200"
+              activeProps={{ className: "text-white bg-white/10" }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Manager
+            </Link>
+
           </nav>
         </GlassPanel>
         </motion.div>

@@ -45,26 +45,16 @@ export function AprioriRecommendations({
   }
 
   return (
-    <section className="container mx-auto px-4 py-10">
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/15">
-            <Sparkles className="size-5 text-primary" />
-          </div>
+    <section className="container mx-auto px-4 py-14">
+      <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--color-primary)]">
+        <Sparkles className="size-4" /> Association rules
+      </p>
+      <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white">Viewers also watched</h2>
+      <p className="mt-2 max-w-xl text-sm text-white/60">
+        People who booked <span className="font-medium text-white">{movieTitle}</span> often booked these too.
+      </p>
 
-          <div>
-            <h2 className="text-2xl font-bold">
-              Recommended for You
-            </h2>
-
-            <p className="text-sm text-muted-foreground">
-              Based on viewer movie associations
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="scrollbar-hide -mx-4 flex gap-4 overflow-x-auto px-4 pb-2">
+      <div className="scrollbar-hide -mx-4 mt-8 flex scroll-pl-4 snap-x gap-5 overflow-x-auto px-4 pb-4">
         {recommendations.map((recommendation) => {
           const movie: MovieCardData = {
             id: recommendation.movie_id,
@@ -76,51 +66,18 @@ export function AprioriRecommendations({
             certificate: recommendation.certificate,
             languages: recommendation.languages,
           };
+          const confidence = Math.min(100, Math.round(recommendation.confidence * 100));
 
           return (
-            <div
-              key={recommendation.movie_id}
-              className="w-[220px] shrink-0"
-            >
-              <MovieCard movie={movie} />
-
-              <div className="mt-3 rounded-lg border bg-muted/30 p-3">
-                <div className="mb-2 flex items-center gap-2">
-                  <Sparkles className="size-4 text-primary" />
-
-                  <p className="text-sm font-semibold">
-                    Why recommended?
-                  </p>
+            <div key={recommendation.movie_id} className="w-[180px] shrink-0 snap-start sm:w-[200px] md:w-[220px]">
+              <MovieCard movie={movie} fluid />
+              <div className="mt-3 px-0.5">
+                <div className="flex items-baseline justify-between text-xs">
+                  <span className="font-semibold text-white">{confidence}% of them</span>
+                  <span className="text-white/45">lift {recommendation.lift.toFixed(1)}x</span>
                 </div>
-
-                <p className="text-xs text-muted-foreground">
-                  Viewers who watched{" "}
-                  <span className="font-medium text-foreground">
-                    {movieTitle}
-                  </span>{" "}
-                  also watched this movie.
-                </p>
-
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-md bg-background p-2">
-                    <p className="text-[10px] uppercase text-muted-foreground">
-                      Confidence
-                    </p>
-
-                    <p className="text-sm font-semibold">
-                      {(recommendation.confidence * 100).toFixed(0)}%
-                    </p>
-                  </div>
-
-                  <div className="rounded-md bg-background p-2">
-                    <p className="text-[10px] uppercase text-muted-foreground">
-                      Lift
-                    </p>
-
-                    <p className="text-sm font-semibold">
-                      {recommendation.lift.toFixed(2)}
-                    </p>
-                  </div>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10" role="presentation">
+                  <div className="h-full rounded-full bg-[color:var(--color-primary)]" style={{ width: `${confidence}%` }} />
                 </div>
               </div>
             </div>
