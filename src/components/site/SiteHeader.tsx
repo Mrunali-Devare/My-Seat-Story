@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PremiumButton } from "@/components/premium/PremiumButton";
 import { GlassPanel } from "@/components/premium/GlassPanel";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CITIES = [
@@ -37,6 +38,11 @@ const CITIES = [
   "Pune",
 ];
 
+const NAV_LINK =
+  "relative rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-white/5 hover:text-foreground " +
+  "after:absolute after:inset-x-4 after:bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-[color:var(--color-primary)] after:transition-transform after:duration-300 hover:after:scale-x-100";
+const NAV_LINK_ACTIVE = "bg-white/10 text-foreground after:scale-x-100";
+
 const SEARCH_HISTORY_KEY = "cineverse-search-history";
 const MAX_SEARCH_HISTORY = 5;
 
@@ -47,6 +53,14 @@ export function SiteHeader() {
   const isManager = roles.includes("manager") || roles.includes("admin");
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 const [searchOpen, setSearchOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState("");
 
@@ -213,11 +227,17 @@ useEffect(() => {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[color:var(--color-background)]/80 backdrop-blur-xl">
+    <header
+      className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 ${
+        scrolled
+          ? "border-white/15 bg-[color:var(--color-background)]/95 shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+          : "border-white/10 bg-[color:var(--color-background)]/70"
+      }`}
+    >
       <div className="container mx-auto flex h-16 items-center gap-4 px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="rounded-xl bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-primary-glow)] p-2 shadow-glow">
+        <Link to="/" className="group flex items-center gap-2 shrink-0">
+          <div className="rounded-xl transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-primary-glow)] p-2 shadow-glow">
             <Film className="size-6 text-white" />
           </div>
 
@@ -230,10 +250,8 @@ useEffect(() => {
         <nav className="hidden items-center gap-1 md:flex">
           <Link
             to="/"
-            className="px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:text-foreground hover:bg-white/5 rounded-lg"
-            activeProps={{
-              className: "text-foreground bg-white/10",
-            }}
+            className={NAV_LINK}
+            activeProps={{ className: NAV_LINK_ACTIVE }}
             activeOptions={{ exact: true }}
           >
             Movies
@@ -242,10 +260,8 @@ useEffect(() => {
           {user && (
             <Link
               to="/bookings"
-              className="px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:text-foreground hover:bg-white/5 rounded-lg"
-              activeProps={{
-                className: "text-foreground bg-white/10",
-              }}
+              className={NAV_LINK}
+              activeProps={{ className: NAV_LINK_ACTIVE }}
             >
               My Bookings
             </Link>
@@ -369,8 +385,15 @@ useEffect(() => {
       </div>
 
       {/* Desktop Search */}
+      <AnimatePresence initial={false}>
       {searchOpen && (
-        <div className="hidden sm:block border-t border-white/10 bg-[color:var(--color-background)]/95 backdrop-blur-xl">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="hidden sm:block border-t border-white/10 bg-[color:var(--color-background)]/95 backdrop-blur-xl"
+        >
           <div className="container mx-auto px-4 py-3">
             <form
               onSubmit={(e) => {
@@ -451,12 +474,21 @@ useEffect(() => {
               )}
             </form>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Mobile menu */}
+      <AnimatePresence initial={false}>
       {mobileMenuOpen && (
-        <GlassPanel className="mx-4 mb-4 md:hidden">
+        <motion.div
+          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="md:hidden"
+        >
+        <GlassPanel className="mx-4 mb-4">
           <nav className="flex flex-col gap-2 p-4">
             {/* Mobile search */}
             <form
@@ -512,7 +544,7 @@ useEffect(() => {
 
             <Link
               to="/"
-              className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 rounded-lg transition-all duration-200"
               activeProps={{
                 className: "text-white bg-white/10",
               }}
@@ -525,7 +557,7 @@ useEffect(() => {
             {user && (
               <Link
                 to="/bookings"
-                className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 rounded-lg transition-all duration-200"
                 activeProps={{
                   className: "text-white bg-white/10",
                 }}
@@ -538,7 +570,7 @@ useEffect(() => {
             {!user && (
               <Link
                 to="/auth"
-                className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                className="px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign in
@@ -546,7 +578,9 @@ useEffect(() => {
             )}
           </nav>
         </GlassPanel>
+        </motion.div>
       )}
+      </AnimatePresence>
     </header>
   );
 }

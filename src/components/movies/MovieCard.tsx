@@ -21,23 +21,21 @@ export function MovieCard({ movie }: { movie: MovieCardData }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
       <Link
         to="/movies/$id"
         params={{ id: movie.id }}
         className="group block w-[180px] shrink-0 sm:w-[200px] md:w-[240px]"
       >
-        <PremiumCard variant="spotlight" className="overflow-hidden p-0">
+        <PremiumCard variant="spotlight" hover={false} className="overflow-hidden p-0 group-hover:border-[color:var(--color-primary)]/40 group-hover:shadow-glow">
           <div className="relative aspect-[2/3] overflow-hidden">
             {movie.poster_url ? (
-              <motion.img
+              <img
                 src={movie.poster_url}
                 alt={movie.title}
                 loading="lazy"
-                className="size-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.5 }}
+                className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
             ) : (
               <div className="flex size-full items-center justify-center bg-card text-muted-foreground">
@@ -46,12 +44,7 @@ export function MovieCard({ movie }: { movie: MovieCardData }) {
             )}
             
             {/* Glass overlay on hover */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             {/* Rating badge */}
             <motion.div
@@ -78,31 +71,18 @@ export function MovieCard({ movie }: { movie: MovieCardData }) {
             )}
             
             {/* Play button on hover */}
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileHover={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div
-                className="bg-[color:var(--color-primary)] rounded-full p-4 shadow-glow"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Play className="size-6 text-white fill-white" />
-              </motion.div>
-            </motion.div>
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 scale-90 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100">
+              <div className="rounded-full bg-[color:var(--color-primary)] p-4 shadow-glow">
+                <Play className="size-6 fill-white text-white" />
+              </div>
+            </div>
           </div>
           
           {/* Movie info */}
           <div className="p-3 sm:p-4 space-y-2">
-            <motion.h3
-              className="line-clamp-1 font-display font-semibold text-base sm:text-lg transition-colors group-hover:text-[color:var(--color-primary)]"
-              whileHover={{ x: 4 }}
-              transition={{ duration: 0.2 }}
-            >
+            <h3 className="line-clamp-1 font-display font-semibold text-base sm:text-lg transition-colors duration-200 group-hover:text-[color:var(--color-primary)]">
               {movie.title}
-            </motion.h3>
+            </h3>
             <p className="line-clamp-1 text-xs sm:text-sm text-muted-foreground">
               {movie.genres.slice(0, 3).join(" • ")}
             </p>

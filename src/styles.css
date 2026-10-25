@@ -130,6 +130,13 @@
   * {
     border-color: var(--color-border);
   }
+  html,
+  body {
+    /* `clip` (not `hidden`) so animated/scaled children can't create a horizontal
+       scrollbar, while position: sticky on the header keeps working. */
+    overflow-x: clip;
+    max-width: 100%;
+  }
   body {
     background: var(--background);
     color: var(--foreground);

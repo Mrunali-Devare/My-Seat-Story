@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { TrendingUp, CalendarClock, MapPin, Sparkles, Film, ArrowLeft, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site/SiteHeader";
@@ -115,6 +115,7 @@ const {
 } = useQuery({
   queryKey: ["movies", "city", city],
   enabled: !!city,
+  placeholderData: keepPreviousData,
   queryFn: async () => {
     // 1. Get theatres in the selected city
     const { data: theatres, error: theatreError } = await supabase
@@ -255,7 +256,7 @@ const heroMovies =
           )}
         </div>
 
-        <PremiumCard variant="default" className="mb-8 p-5 md:p-6">
+        <PremiumCard variant="default" hover={false} className="mb-8 p-5 md:p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-white">Find Your Movie</h2>
@@ -302,7 +303,7 @@ const heroMovies =
 )}
 
         {!isLoading && !isError && showSearchResults && (
-          <PremiumCard variant="default" className="mb-8 p-6 md:p-8">
+          <PremiumCard variant="default" hover={false} className="mb-8 p-6 md:p-8">
             <div className="mb-6">
               <h2 className="text-2xl font-display font-bold text-white">{searchQuery ? "Search Results" : "Filtered Movies"}</h2>
               <p className="mt-1 text-sm text-white/60">{searchQuery ? <>Results for <span className="font-semibold text-white">“{routeSearch.search}”</span></> : "Movies matching your selected filters"} · {filteredMovies.length} found</p>
@@ -368,13 +369,14 @@ function FilterSelect({ label, value, onChange, options, placeholder }: { label:
 function MovieSection({ title, subtitle, icon, movies }: { title: string; subtitle: string; icon: React.ReactNode; movies: Movie[] }) {
   if (movies.length === 0) return null;
   return (
-    <PremiumCard variant="default" className="mb-12 p-6 md:p-8">
+    <PremiumCard variant="default" hover={false} className="mb-12 p-6 md:p-8">
       <div className="mb-6 flex items-center gap-3"><div className="flex size-10 items-center justify-center rounded-full bg-white/10">{icon}</div><div><h2 className="text-2xl font-display font-bold text-white">{title}</h2><p className="text-sm text-white/60">{subtitle}</p></div></div>
       <div className="scrollbar-hide -mx-6 flex gap-4 overflow-x-auto px-6 pb-2">{movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}</div>
     </PremiumCard>
   );
 }
-{
+
+function ShowtimesSection({ movies, shows, city }: { movies: Movie[]; shows: any[]; city: string }) {
   const movieMap = useMemo(
     () => new Map(movies.map((movie) => [movie.id, movie])),
     [movies]
@@ -411,6 +413,7 @@ function MovieSection({ title, subtitle, icon, movies }: { title: string; subtit
     return (
       <PremiumCard
         variant="default"
+        hover={false}
         className="mb-12 p-6 md:p-8"
       >
         <div className="py-8 text-center">
@@ -432,6 +435,7 @@ function MovieSection({ title, subtitle, icon, movies }: { title: string; subtit
   return (
     <PremiumCard
       variant="default"
+      hover={false}
       className="mb-12 p-6 md:p-8"
     >
       <div className="mb-6 flex items-center gap-3">

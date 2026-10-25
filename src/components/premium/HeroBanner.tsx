@@ -48,7 +48,7 @@ export function HeroBanner({ movies }: HeroBannerProps) {
   if (!currentMovie) return null;
 
   return (
-    <div className="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
+    <div className="relative pt-16 h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
       {/* Background image with overlay */}
       <AnimatePresence mode="wait">
         <motion.div
