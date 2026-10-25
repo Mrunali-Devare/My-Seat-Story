@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Plus, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Poster, Backdrop } from "@/components/ui/poster";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -257,7 +258,7 @@ const updateTMDBDetails = async () => {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {movies.map((m: any) => (
           <div key={m.id} className="flex gap-3 rounded-2xl border border-border/60 bg-card p-3 shadow-card">
-            {m.poster_url && <img src={m.poster_url} alt={m.title} className="h-32 w-20 shrink-0 rounded-md object-cover" />}
+            <div className="h-32 w-20 shrink-0 overflow-hidden rounded-md"><Poster src={m.poster_url} title={m.title} compact /></div>
             <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold">{m.title}</h3>
               <p className="text-xs text-muted-foreground">{m.duration_minutes}m · {m.certificate}</p>
