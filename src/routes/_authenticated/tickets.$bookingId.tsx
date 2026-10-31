@@ -36,18 +36,29 @@ function TicketPage() {
       .then(setQr).catch(() => {});
   }, [booking]);
 
-  const cancel = async () => {
-    if (!booking) return;
-    if (!confirm("Cancel this booking? Seats will be released.")) return;
-    const { error } = await supabase.from("bookings")
-      .update({ status: "cancelled", payment_status: "refunded" })
-      .eq("id", booking.id);
-    if (error) return toast.error(error.message);
-    await supabase.from("show_seats").update({ status: "available", booking_id: null })
-      .eq("booking_id", booking.id);
-    toast.success("Booking cancelled. Refund initiated.");
-    location.reload();
-  };
+  
+const cancel = async () => {
+  if (!booking) return;
+
+  if (!confirm("Cancel this booking? Its seats will be released.")) {
+    return;
+  }
+
+  const { data, error } = await supabase.rpc("cancel_mock_booking", {
+    p_booking_id: booking.id,
+  });
+
+  if (error) {
+    return toast.error(error.message);
+  }
+
+  if (!data) {
+    return toast.error("The booking could not be cancelled.");
+  }
+
+  toast.success("Booking cancelled. No real payment or refund was processed.");
+  location.reload();
+};
 
   const download = () => {
     if (!qr) return;

@@ -1,0 +1,163 @@
+
+/* My Seat Story — Premium Dark Cinema Manager Theme */
+
+.manager-theme {
+  --background: 240 10% 6%;
+  --foreground: 260 20% 96%;
+  --card: 260 18% 10%;
+  --card-foreground: 260 20% 96%;
+  --popover: 260 18% 10%;
+  --popover-foreground: 260 20% 96%;
+  --primary: 263 70% 58%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 265 22% 17%;
+  --secondary-foreground: 260 20% 96%;
+  --muted: 265 18% 15%;
+  --muted-foreground: 260 10% 68%;
+  --accent: 265 25% 20%;
+  --accent-foreground: 260 20% 96%;
+  --destructive: 350 80% 60%;
+  --border: 265 20% 20%;
+  --input: 265 20% 20%;
+  --ring: 263 70% 65%;
+
+  min-height: 100vh;
+  background: #100e15;
+  color: #f5f3ff;
+  color-scheme: dark;
+}
+
+/* Keep the manager page background dark */
+.manager-theme .container {
+  color: #f5f3ff;
+}
+
+/* Navigation */
+.manager-theme nav {
+  background: #191521 !important;
+  border: 1px solid #30263f !important;
+  box-shadow: none !important;
+}
+
+.manager-theme nav a {
+  color: #b7aec8 !important;
+  background: transparent;
+}
+
+.manager-theme nav a:hover {
+  background: #282035 !important;
+  color: #ffffff !important;
+}
+
+.manager-theme nav a[class*="bg-primary"] {
+  background: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+/* Cards and panels */
+.manager-theme .bg-card,
+.manager-theme .bg-white,
+.manager-theme .bg-gray-50,
+.manager-theme .bg-slate-50,
+.manager-theme .bg-gray-100,
+.manager-theme .bg-slate-100 {
+  background-color: #191621 !important;
+  color: #f5f3ff;
+}
+
+.manager-theme [class*="shadow-card"] {
+  box-shadow: none !important;
+}
+
+.manager-theme .border,
+.manager-theme [class*="border-border"] {
+  border-color: #30263f !important;
+}
+
+/* Text readability */
+.manager-theme .text-foreground,
+.manager-theme .text-gray-900,
+.manager-theme .text-slate-900,
+.manager-theme .text-gray-800,
+.manager-theme .text-gray-700,
+.manager-theme .text-black {
+  color: #f5f3ff !important;
+}
+
+.manager-theme .text-muted-foreground,
+.manager-theme .text-gray-600,
+.manager-theme .text-gray-500,
+.manager-theme .text-slate-500,
+.manager-theme .text-slate-600 {
+  color: #b7aec8 !important;
+}
+
+/* Purple accents */
+.manager-theme .bg-primary,
+.manager-theme .bg-blue-600,
+.manager-theme .bg-indigo-600 {
+  background-color: #7c3aed !important;
+}
+
+.manager-theme .text-primary,
+.manager-theme .text-blue-600,
+.manager-theme .text-blue-700,
+.manager-theme .text-indigo-600 {
+  color: #bda4ff !important;
+}
+
+/* Inputs */
+.manager-theme input,
+.manager-theme select,
+.manager-theme textarea {
+  background: #120f19 !important;
+  color: #f5f3ff !important;
+  border-color: #40334f !important;
+}
+
+.manager-theme input::placeholder,
+.manager-theme textarea::placeholder {
+  color: #9589a8 !important;
+}
+
+/* Tables */
+.manager-theme table {
+  color: #f5f3ff;
+}
+
+.manager-theme thead,
+.manager-theme th {
+  background: #211a2d !important;
+  color: #ded1ff !important;
+}
+
+.manager-theme td {
+  background-color: transparent;
+  border-color: #30263f !important;
+}
+
+.manager-theme tbody tr:hover {
+  background: #211a2d !important;
+}
+
+/* Chart panels */
+.manager-theme .recharts-cartesian-grid line {
+  stroke: #30263f;
+}
+
+.manager-theme .recharts-text {
+  fill: #b7aec8;
+}
+
+/* Rounded panels */
+.manager-theme .rounded-xl,
+.manager-theme .rounded-2xl {
+  border-color: #30263f;
+}
+
+/* Keep the manager theme visually consistent */
+.manager-theme button:focus-visible,
+.manager-theme a:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}

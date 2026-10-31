@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { LayoutDashboard, Film, CalendarRange } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { useAuth } from "@/lib/auth-context";
-
+import "@/manager-theme.css";
 export const Route = createFileRoute("/_authenticated/manager")({
   component: ManagerLayout,
 });
@@ -12,7 +12,8 @@ function ManagerLayout() {
   const allowed = roles.includes("manager") || roles.includes("admin");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="manager-theme min-h-screen bg-background">
+      <div clasName="manager-theme">
       <SiteHeader />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold">Theater Manager</h1>
@@ -40,6 +41,7 @@ function ManagerLayout() {
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   );
