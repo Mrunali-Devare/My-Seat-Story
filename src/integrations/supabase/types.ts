@@ -114,6 +114,7 @@ export type Database = {
           release_date: string | null
           status: Database["public"]["Enums"]["movie_status"]
           title: string
+          tmdb_id: number | null
           trailer_url: string | null
           trending: boolean
           updated_at: string
@@ -134,6 +135,7 @@ export type Database = {
           release_date?: string | null
           status?: Database["public"]["Enums"]["movie_status"]
           title: string
+          tmdb_id?: number | null
           trailer_url?: string | null
           trending?: boolean
           updated_at?: string
@@ -154,6 +156,7 @@ export type Database = {
           release_date?: string | null
           status?: Database["public"]["Enums"]["movie_status"]
           title?: string
+          tmdb_id?: number | null
           trailer_url?: string | null
           trending?: boolean
           updated_at?: string
@@ -423,6 +426,35 @@ export type Database = {
           p_start_time: string
         }
         Returns: string
+      }
+      get_agglomerative_viewer_segments: {
+        Args: never
+        Returns: Record<string, unknown>[]
+      }
+      get_apriori_recommendations: {
+        Args: { p_movie_title: string }
+        Returns: Record<string, unknown>[]
+      }
+      get_apriori_rules: { Args: never; Returns: Record<string, unknown>[] }
+      get_decision_tree_predictions: {
+        Args: never
+        Returns: Record<string, unknown>[]
+      }
+      get_kmeans_viewer_segments: {
+        Args: never
+        Returns: Record<string, unknown>[]
+      }
+      get_ml_movie_popularity: {
+        Args: never
+        Returns: Record<string, unknown>[]
+      }
+      get_naive_bayes_predictions: {
+        Args: never
+        Returns: Record<string, unknown>[]
+      }
+      get_revenue_predictions: {
+        Args: never
+        Returns: Record<string, unknown>[]
       }
       has_role: {
         Args: {

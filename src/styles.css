@@ -101,16 +101,16 @@
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.7 0.16 48);
 
-  /* Seat tokens */
-  --seat-available: oklch(0.3 0.008 60);
-  --seat-selected: oklch(0.7 0.16 48);
-  --seat-booked: oklch(0.22 0.006 60 / 50%);
-  --seat-locked: oklch(0.5 0.08 80);
-  --seat-premium: oklch(0.5 0.07 230);
-  --seat-vip: oklch(0.55 0.14 25);
-  --seat-recliner: oklch(0.6 0.12 330);
-
-  --gradient-hero: radial-gradient(120% 80% at 20% 0%, oklch(0.22 0.02 55) 0%, oklch(0.145 0.006 60) 60%);
+    /* Seat tokens - improved contrast */
+  --seat-available: oklch(0.32 0.07 280);
+  --seat-selected: oklch(0.78 0.16 85);
+  --seat-booked: oklch(0.40 0.015 280);
+  --seat-locked: oklch(0.42 0.09 45);
+  --seat-premium: oklch(0.48 0.16 285);
+  --seat-vip: oklch(0.58 0.22 25);
+  --seat-recliner: oklch(0.62 0.20 15);
+  
+  --gradient-hero: linear-gradient(135deg, oklch(0.20 0.05 280) 0%, oklch(0.15 0.02 280) 50%, oklch(0.18 0.06 280) 100%);
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
   --gradient-gold: var(--gradient-primary);
   --gradient-crimson: var(--gradient-primary);

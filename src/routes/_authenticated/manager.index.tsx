@@ -924,8 +924,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 />
 
                 <Tooltip
-                  formatter={(value: number | undefined) =>
-                    value !== undefined
+                  formatter={(value) =>
+                    typeof value === "number"
                       ? [`₹${value.toLocaleString("en-IN")}`, "Revenue"]
                       : []
                   }
@@ -986,8 +986,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 />
 
                 <Tooltip
-                  formatter={(value: number | undefined) =>
-                    value !== undefined
+                  formatter={(value) =>
+                    typeof value === "number"
                       ? [`₹${value.toLocaleString("en-IN")}`, "Revenue"]
                       : []
                   }
@@ -1044,8 +1044,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -1220,8 +1220,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Spending",
@@ -1398,8 +1398,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
               />
 
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [
                         `₹${value.toLocaleString("en-IN")}`,
                         "Spending",
@@ -1558,8 +1558,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
               />
 
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [value.toFixed(2), "Lift"]
                     : []
                 }
@@ -1677,8 +1677,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 domain={[0, 100]}
               />
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [`${value.toFixed(2)}%`, "Probability"]
                     : []
                 }
@@ -1785,8 +1785,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
             />
 
             <Tooltip
-              formatter={(value: number | undefined) =>
-                value !== undefined
+              formatter={(value) =>
+                typeof value === "number"
                   ? [`${value.toFixed(2)}%`, "Probability"]
                   : []
               }
@@ -1917,8 +1917,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
             />
 
             <Tooltip
-              formatter={(value: number | undefined) =>
-                value !== undefined
+              formatter={(value) =>
+                typeof value === "number"
                   ? [
                       `₹${value.toLocaleString("en-IN")}`,
                       "Revenue",
@@ -2207,8 +2207,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                   />
 
                   <Tooltip
-                    formatter={(value: number | undefined) =>
-                      value !== undefined
+                    formatter={(value) =>
+                      typeof value === "number"
                         ? [
                             `₹${value.toLocaleString("en-IN")}`,
                             "Revenue",
@@ -2324,8 +2324,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -2468,8 +2468,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
         />
 
         <Tooltip
-          formatter={(value: number | undefined) =>
-            value !== undefined
+          formatter={(value) =>
+            typeof value === "number"
               ? [
                   `₹${value.toLocaleString("en-IN")}`,
                   "Revenue",
@@ -2688,8 +2688,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -2866,8 +2866,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
