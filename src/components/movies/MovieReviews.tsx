@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import { getMovieReviews, saveReview } from "@/lib/demo-store";
 
 type MovieReview = {
   id: string;
@@ -29,10 +31,12 @@ export function MovieReviews({
   movieId: string;
 }) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
+  // Seeded reviews come from Supabase; reviews written in the demo are stored in this browser.
   const reviewsQuery = useQuery({
     queryKey: ["movie-reviews", movieId],
     enabled: !!movieId,
@@ -40,58 +44,47 @@ export function MovieReviews({
       const { data, error } = await supabase
         .from("reviews")
         .select("id, rating, comment, created_at, user_id")
-        .eq("movie_id", movieId)
-        .order("created_at", { ascending: false });
+        .eq("movie_id", movieId);
 
       if (error) throw error;
 
-      return (data ?? []) as MovieReview[];
+      return [...((data ?? []) as MovieReview[]), ...getMovieReviews(movieId)].sort((a, b) =>
+        b.created_at.localeCompare(a.created_at),
+      );
     },
   });
-  const analyticsQuery = useQuery({
-  queryKey: ["movie-review-analytics", movieId],
-  enabled: !!movieId,
-  queryFn: async () => {
-    const { data, error } = await supabase.rpc(
-      "get_movie_review_analytics",
-      {
-        p_movie_id: movieId,
-      }
-    );
 
-    if (error) throw error;
+  const reviews = reviewsQuery.data;
 
-    return data?.[0] as MovieReviewAnalytics | undefined;
-  },
-});
-const ratingDistributionQuery = useQuery({
-  queryKey: ["movie-rating-distribution", movieId],
-  enabled: !!movieId,
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("rating")
-      .eq("movie_id", movieId);
+  const analytics = useMemo((): MovieReviewAnalytics | undefined => {
+    if (!reviews?.length) return undefined;
+    const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+    return {
+      total_reviews: reviews.length,
+      average_rating: Math.round((total / reviews.length) * 10) / 10,
+      positive_reviews: reviews.filter((r) => r.rating >= 4).length,
+      neutral_reviews: reviews.filter((r) => r.rating === 3).length,
+      negative_reviews: reviews.filter((r) => r.rating <= 2).length,
+    };
+  }, [reviews]);
 
-    if (error) throw error;
+  const ratingDistribution = useMemo(
+    (): MovieRatingDistribution[] | undefined =>
+      reviews &&
+      [1, 2, 3, 4, 5].map((value) => ({
+        rating: value,
+        review_count: reviews.filter((r) => r.rating === value).length,
+      })),
+    [reviews],
+  );
 
-    const counts = [1, 2, 3, 4, 5].map((rating) => ({
-      rating,
-      review_count: (data ?? []).filter(
-        (review) => review.rating === rating
-      ).length,
-    }));
+  const maxRatingCount = Math.max(1, ...(ratingDistribution ?? []).map((entry) => entry.review_count));
 
-    return counts as MovieRatingDistribution[];
-  },
-});
+  const analyticsQuery = { isLoading: reviewsQuery.isLoading, data: analytics };
+  const ratingDistributionQuery = { isLoading: reviewsQuery.isLoading, data: ratingDistribution };
 
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
       if (!user) {
         throw new Error("You must be logged in to submit a review.");
       }
@@ -100,21 +93,13 @@ const ratingDistributionQuery = useQuery({
         throw new Error("Please select a rating from 1 to 5.");
       }
 
-      const { error } = await supabase
-        .from("reviews")
-        .upsert(
-          {
-            movie_id: movieId,
-            user_id: user.id,
-            rating,
-            comment: comment.trim() || null,
-          },
-          {
-            onConflict: "movie_id,user_id",
-          }
-        );
-
-      if (error) throw error;
+      saveReview({
+        movie_id: movieId,
+        user_id: user.id,
+        user_name: user.name,
+        rating,
+        comment: comment.trim() || null,
+      });
     },
 
     onSuccess: () => {
@@ -223,13 +208,7 @@ const ratingDistributionQuery = useQuery({
                 style={{
                   width: `${
                     item.review_count > 0
-                      ? (item.review_count /
-                          Math.max(
-                            ...ratingDistributionQuery.data.map(
-                              (entry) => entry.review_count
-                            )
-                          )) *
-                        100
+                      ? (item.review_count / maxRatingCount) * 100
                       : 0
                   }%`,
                 }}

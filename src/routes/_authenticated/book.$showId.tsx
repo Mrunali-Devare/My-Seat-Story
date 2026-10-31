@@ -10,6 +10,7 @@ import { SeatGrid, type SeatRow } from "@/components/seats/SeatGrid";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { formatShowDateOnly, formatShowTimeOnly, inr } from "@/lib/format";
+import { createBooking, getBookedSeatIds } from "@/lib/demo-store";
 import { toast } from "sonner";
 
 const LOCK_MINUTES = 5;
@@ -39,7 +40,7 @@ function BookPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shows")
-        .select("id, start_time, base_price, screens(name, theaters(name,city,address)), movies(title, poster_url, duration_minutes, certificate, languages)")
+        .select("id, start_time, base_price, screens(name, theaters(name,city,address)), movies(id, title, poster_url, duration_minutes, certificate, languages)")
         .eq("id", showId).maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
@@ -47,7 +48,8 @@ function BookPage() {
     },
   });
 
-  const { data: seats = [], refetch } = useQuery({
+  // Seat layout comes from Supabase; which seats are taken comes from the demo's local bookings.
+  const { data: seats = [] } = useQuery({
     queryKey: ["seats", showId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,30 +57,15 @@ function BookPage() {
         .select("id, show_id, row_label, col_num, seat_label, seat_type, price, status, locked_by, locked_until")
         .eq("show_id", showId);
       if (error) throw error;
-      return (data ?? []) as SeatRow[];
+      const booked = getBookedSeatIds(showId);
+      return ((data ?? []) as SeatRow[]).map((s) => ({
+        ...s,
+        status: booked.has(s.id) ? ("booked" as const) : ("available" as const),
+        locked_by: null,
+        locked_until: null,
+      }));
     },
-    refetchInterval: 8000,
   });
-
-  // Realtime updates
-  useEffect(() => {
-    const ch = supabase.channel(`seats:${showId}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "show_seats", filter: `show_id=eq.${showId}` }, () => refetch())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [showId, refetch]);
-
-  // Release locks on unmount
-  useEffect(() => {
-    return () => {
-      const ids = Array.from(selected);
-      if (ids.length && user) {
-        supabase.from("show_seats").update({ status: "available", locked_by: null, locked_until: null })
-          .in("id", ids).eq("locked_by", user.id).then(() => {});
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const total = useMemo(() => {
     let t = 0;
@@ -88,136 +75,82 @@ function BookPage() {
 
   const selectedSeats = seats.filter((s) => selected.has(s.id));
 
-  const toggleSeat = async (seat: SeatRow) => {
-  if (!user) return;
+  // Selecting a seat starts (or keeps) a local hold timer; nothing is written anywhere until payment.
+  const toggleSeat = (seat: SeatRow) => {
+    if (!user) return;
 
-  if (selected.has(seat.id)) {
-    // Unlock the seat
-    const { data, error } = await supabase
-      .from("show_seats")
-      .update({
-        status: "available",
-        locked_by: null,
-        locked_until: null,
-      })
-      .eq("id", seat.id)
-      .eq("locked_by", user.id)
-      .select()
-      .maybeSingle();
-
-    if (error) {
-      console.error("UNLOCK SEAT ERROR:", error);
-      return toast.error(`Could not release seat: ${error.message}`);
-    }
-
-    if (!data) {
-      console.error("UNLOCK SEAT: no matching row", {
-        seatId: seat.id,
-        userId: user.id,
+    if (selected.has(seat.id)) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(seat.id);
+        return next;
       });
-      return toast.error("Could not release seat");
+      return;
     }
 
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.delete(seat.id);
-      return next;
-    });
-  } else {
-    if (selected.size >= 10) {
-      return toast.error("Max 10 seats per booking");
-    }
-
-    const until = new Date(
-      Date.now() + LOCK_MINUTES * 60 * 1000,
-    ).toISOString();
-
-    const { data, error } = await supabase
-      .from("show_seats")
-      .update({
-        status: "locked",
-        locked_by: user.id,
-        locked_until: until,
-      })
-      .eq("id", seat.id)
-      .eq("status", "available")
-      .is("locked_by", null)
-      .select()
-      .maybeSingle();
-
-    if (error) {
-      console.error("LOCK SEAT ERROR:", error);
-
-      return toast.error(
-        `Could not select seat: ${error.message}`,
-      );
-    }
-
-    if (!data) {
-      console.error("LOCK SEAT: no matching available seat", {
-        seatId: seat.id,
-        userId: user.id,
-      });
-
+    if (selected.size >= 10) return toast.error("Max 10 seats per booking");
+    if (getBookedSeatIds(showId).has(seat.id)) {
+      qc.invalidateQueries({ queryKey: ["seats", showId] });
       return toast.error("Seat is no longer available");
     }
 
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.add(seat.id);
-      return next;
-    });
-
-    setLockExpiry(
-      Date.now() + LOCK_MINUTES * 60 * 1000,
-    );
-  }
-
-  qc.invalidateQueries({
-    queryKey: ["seats", showId],
-  });
-};
+    setSelected((prev) => new Set(prev).add(seat.id));
+    if (!lockExpiry) setLockExpiry(Date.now() + LOCK_MINUTES * 60 * 1000);
+  };
 
   // Auto-release on timer
   useEffect(() => {
-    if (!lockExpiry || !selected.size) return;
+    if (!lockExpiry) return;
+    if (!selected.size) {
+      setLockExpiry(null);
+      return;
+    }
     if (now > lockExpiry) {
-      const ids = Array.from(selected);
-      if (user) {
-        supabase.from("show_seats").update({ status: "available", locked_by: null, locked_until: null })
-          .in("id", ids).eq("locked_by", user.id).then(() => {});
-      }
       setSelected(new Set());
       setLockExpiry(null);
       toast.error("Your seat hold expired. Please reselect.");
     }
-  }, [now, lockExpiry, selected, user]);
+  }, [now, lockExpiry, selected]);
 
   const handlePay = async () => {
     if (!user || selected.size === 0) return;
     setPaying(true);
     try {
-      // Simulate payment delay
+      // Simulate payment delay; mock payments always succeed.
       await new Promise((r) => setTimeout(r, 1400));
-      // Always succeed in mock mode
-      const { data: booking, error } = await supabase.from("bookings").insert({
+
+      const booked = getBookedSeatIds(showId);
+      if (selectedSeats.some((s) => booked.has(s.id))) {
+        setSelected(new Set());
+        qc.invalidateQueries({ queryKey: ["seats", showId] });
+        throw new Error("Some seats were just booked. Please reselect.");
+      }
+
+      const booking = createBooking({
         user_id: user.id,
         show_id: showId,
         total_amount: total,
-        status: "confirmed",
-        payment_status: "success",
-      }).select().single();
-      if (error || !booking) throw error;
+        seats: selectedSeats.map((s) => ({ id: s.id, seat_label: s.seat_label, price: Number(s.price) })),
+        show: {
+          start_time: show!.start_time,
+          screen_name: (show as any)?.screens?.name ?? null,
+          theater: theater
+            ? { name: theater.name, city: theater.city, address: theater.address ?? null }
+            : null,
+          movie: movie
+            ? {
+                id: movie.id ?? null,
+                title: movie.title,
+                poster_url: movie.poster_url ?? null,
+                duration_minutes: movie.duration_minutes ?? null,
+                certificate: movie.certificate ?? null,
+              }
+            : null,
+        },
+      });
 
-      const seatIds = Array.from(selected);
-      const seatRows = seats.filter((s) => seatIds.includes(s.id));
-      await supabase.from("booking_seats").insert(
-        seatRows.map((s) => ({ booking_id: booking.id, show_seat_id: s.id, seat_label: s.seat_label, price: s.price }))
-      );
-      await supabase.from("show_seats").update({
-        status: "booked", booking_id: booking.id, locked_by: null, locked_until: null,
-      }).in("id", seatIds);
-
+      qc.invalidateQueries({ queryKey: ["seats", showId] });
+      qc.invalidateQueries({ queryKey: ["my-bookings"] });
       toast.success("Booking confirmed!");
       router.navigate({ to: "/tickets/$bookingId", params: { bookingId: booking.id } });
     } catch (e: any) {

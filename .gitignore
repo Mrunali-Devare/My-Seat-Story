@@ -45,3 +45,6 @@ __pycache__/
 ml/.env
 ml/datasets/
 ml/**/*.joblib
+
+# Large ML datasets
+ml/datasets/

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { inr, formatShowDateOnly, formatShowTimeOnly } from "@/lib/format";
 import { toast } from "sonner";
+import { DEMO_READ_ONLY, DEMO_READ_ONLY_MESSAGE } from "@/lib/demo-auth";
 
 export const Route = createFileRoute("/_authenticated/manager/shows")({
   component: ManagerShows,
@@ -43,6 +44,7 @@ function ManagerShows() {
   });
 
   const create = async () => {
+    if (DEMO_READ_ONLY) return toast.info(DEMO_READ_ONLY_MESSAGE);
     if (!form.movie_id || !form.screen_id || !form.start_time) return toast.error("Fill all fields");
     const { error } = await supabase.rpc("create_show_with_seats", {
       p_screen_id: form.screen_id,
@@ -57,6 +59,7 @@ function ManagerShows() {
   };
 
   const remove = async (id: string) => {
+    if (DEMO_READ_ONLY) return toast.info(DEMO_READ_ONLY_MESSAGE);
     if (!confirm("Delete this show? All seats and bookings linked will be cascaded.")) return;
     const { error } = await supabase.from("shows").delete().eq("id", id);
     if (error) return toast.error(error.message);

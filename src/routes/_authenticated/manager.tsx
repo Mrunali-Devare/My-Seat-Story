@@ -20,7 +20,7 @@ function ManagerLayout() {
 
         {!allowed ? (
           <div className="mt-8 rounded-2xl border border-dashed border-border bg-card/40 p-8 text-center text-muted-foreground">
-            You don't have manager access. Sign in with the demo manager account to see this area.
+            You don't have manager access. Switch to "Demo Manager" from the account menu to see this area.
           </div>
         ) : (
           <>
@@ -35,6 +35,9 @@ function ManagerLayout() {
                 <Film className="size-4" /> Movies
               </Link>
             </nav>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Demo mode: movies and shows are read-only. The dashboard includes bookings made in this browser.
+            </p>
             <div className="mt-6">
               <Outlet />
             </div>

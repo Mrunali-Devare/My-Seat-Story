@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, MapPin, Ticket, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Poster, Backdrop } from "@/components/ui/poster";
+import { Poster } from "@/components/ui/poster";
+import { getUserBookings } from "@/lib/demo-store";
 import { useAuth } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/badge";
@@ -17,15 +17,7 @@ function BookingsPage() {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["my-bookings", user?.id],
     enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id, booking_code, total_amount, status, payment_status, created_at, shows(start_time, screens(name, theaters(name,city)), movies(title, poster_url)), booking_seats(seat_label)")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () => getUserBookings(user!.id),
   });
 
   return (
@@ -46,9 +38,9 @@ function BookingsPage() {
         )}
 
         <div className="mt-6 space-y-3">
-          {bookings.map((b: any) => {
-            const movie = b.shows?.movies;
-            const theater = b.shows?.screens?.theaters;
+          {bookings.map((b) => {
+            const movie = b.show.movie;
+            const theater = b.show.theater;
             return (
               <Link key={b.id} to="/tickets/$bookingId" params={{ bookingId: b.id }}
                     className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:border-primary/40">
@@ -60,10 +52,10 @@ function BookingsPage() {
                   </div>
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1"><MapPin className="size-3" /> {theater?.name}, {theater?.city}</span>
-                    <span className="inline-flex items-center gap-1"><Calendar className="size-3" /> {formatShowDateOnly(b.shows?.start_time)} · {formatShowTimeOnly(b.shows?.start_time)}</span>
+                    <span className="inline-flex items-center gap-1"><Calendar className="size-3" /> {formatShowDateOnly(b.show.start_time)} · {formatShowTimeOnly(b.show.start_time)}</span>
                   </p>
                   <p className="mt-1.5 text-xs text-muted-foreground">
-                    {b.booking_seats.map((s: any) => s.seat_label).join(", ")} · <span className="font-semibold text-foreground">{inr(Number(b.total_amount))}</span>
+                    {b.seats.map((s) => s.seat_label).join(", ")} · <span className="font-semibold text-foreground">{inr(Number(b.total_amount))}</span>
                   </p>
                 </div>
                 <ChevronRight className="size-5 text-muted-foreground" />

@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { getProfile, saveProfile } from "@/lib/demo-store";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,27 +17,19 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", city: "" });
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
+  // Profiles are stored in this browser; default the name to the demo account's.
   useEffect(() => {
-    if (profile) setForm({ full_name: profile.full_name ?? "", phone: profile.phone ?? "", city: profile.city ?? "" });
-  }, [profile]);
+    if (!user) return;
+    setForm(getProfile(user.id) ?? { full_name: user.name, phone: "", city: "" });
+  }, [user]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").upsert({ id: user.id, ...form });
+    await new Promise((r) => setTimeout(r, 300));
+    saveProfile(user.id, form);
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Profile updated");
   };
 
