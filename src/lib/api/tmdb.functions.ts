@@ -32,7 +32,7 @@ export const getNowPlayingMovies = createServerFn({
 export const getMovieDetails = createServerFn({
   method: "GET",
 })
-  .inputValidator((input: { tmdbId: number }) => input)
+  .validator((input: { tmdbId: number }) => input)
   .handler(async ({ data }) => {
     const { tmdbAccessToken } = getServerConfig();
 
