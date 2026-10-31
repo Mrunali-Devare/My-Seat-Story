@@ -143,7 +143,9 @@
     -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
   }
-  html { scroll-behavior: smooth; }
+  /* Instant scroll: smooth scrolling made route changes animate the page back to
+     the top while the sticky header re-rendered, which looked like it hid/lagged. */
+  html { scroll-behavior: auto; }
   p { text-wrap: pretty; }
   h1, h2, h3 { text-wrap: balance; }
   :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }

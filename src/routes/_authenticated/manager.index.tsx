@@ -28,6 +28,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DEMO_USERS } from "@/lib/demo-auth";
+import { getConfirmedBookings, getProfile } from "@/lib/demo-store";
 import {
   Table,
   TableBody,
@@ -243,20 +245,45 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
       const first = <T,>(value: T | T[] | null | undefined): T | null =>
         Array.isArray(value) ? value[0] ?? null : value ?? null;
 
-      if (bookingsResult.error) throw bookingsResult.error;
-      if (seatRowsResult.error) throw seatRowsResult.error;
+      // Bookings and profiles need a signed-in Supabase user, which the demo doesn't have:
+      // treat those as empty and add the bookings made in this browser instead.
       if (reviewsResult.error) throw reviewsResult.error;
       if (moviesResult.error) throw moviesResult.error;
       if (theatresResult.error) throw theatresResult.error;
-      if (profilesResult.error) throw profilesResult.error;
 
-      const bookings = (bookingsResult.data ?? []) as Array<{
-        id: string;
-        total_amount: number | string | null;
-        user_id: string;
-      }>;
+      const localBookings = getConfirmedBookings();
 
-      const seatRows = (seatRowsResult.data ?? []) as any[];
+      const bookings = [
+        ...((bookingsResult.error ? [] : bookingsResult.data ?? []) as Array<{
+          id: string;
+          total_amount: number | string | null;
+          user_id: string;
+        }>),
+        ...localBookings.map((b) => ({ id: b.id, total_amount: b.total_amount, user_id: b.user_id })),
+      ];
+
+      const seatRows = [
+        ...((seatRowsResult.error ? [] : seatRowsResult.data ?? []) as any[]),
+        ...localBookings.flatMap((b) =>
+          b.seats.map((s) => ({
+            id: `${b.id}:${s.id}`,
+            booking_id: b.id,
+            seat_label: s.seat_label,
+            price: s.price,
+            show_seats: {
+              show_id: b.show_id,
+              shows: {
+                movie_id: b.show.movie?.id ?? null,
+                movies: { title: b.show.movie?.title ?? null },
+                screens: {
+                  name: b.show.screen_name,
+                  theaters: { name: b.show.theater?.name ?? null, city: b.show.theater?.city ?? null },
+                },
+              },
+            },
+          })),
+        ),
+      ];
       const reviews = (reviewsResult.data ?? []) as Array<{
         id: string;
         movie_id: string;
@@ -271,11 +298,18 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
         name: string;
         city: string;
       }>;
-      const profiles = (profilesResult.data ?? []) as Array<{
-        id: string;
-        full_name: string | null;
-        city: string | null;
-      }>;
+      const profiles = [
+        ...((profilesResult.error ? [] : profilesResult.data ?? []) as Array<{
+          id: string;
+          full_name: string | null;
+          city: string | null;
+        }>),
+        ...DEMO_USERS.map((u) => ({
+          id: u.id,
+          full_name: getProfile(u.id)?.full_name || u.name,
+          city: getProfile(u.id)?.city || null,
+        })),
+      ];
 
       const movieTitleById = new Map(
         movies.map((movie) => [movie.id, movie.title])
@@ -890,8 +924,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 />
 
                 <Tooltip
-                  formatter={(value: number | undefined) =>
-                    value !== undefined
+                  formatter={(value) =>
+                    typeof value === "number"
                       ? [`₹${value.toLocaleString("en-IN")}`, "Revenue"]
                       : []
                   }
@@ -952,8 +986,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 />
 
                 <Tooltip
-                  formatter={(value: number | undefined) =>
-                    value !== undefined
+                  formatter={(value) =>
+                    typeof value === "number"
                       ? [`₹${value.toLocaleString("en-IN")}`, "Revenue"]
                       : []
                   }
@@ -1010,8 +1044,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -1186,8 +1220,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Spending",
@@ -1364,8 +1398,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
               />
 
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [
                         `₹${value.toLocaleString("en-IN")}`,
                         "Spending",
@@ -1524,8 +1558,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
               />
 
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [value.toFixed(2), "Lift"]
                     : []
                 }
@@ -1643,8 +1677,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                 domain={[0, 100]}
               />
               <Tooltip
-                formatter={(value: number | undefined) =>
-                  value !== undefined
+                formatter={(value) =>
+                  typeof value === "number"
                     ? [`${value.toFixed(2)}%`, "Probability"]
                     : []
                 }
@@ -1751,8 +1785,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
             />
 
             <Tooltip
-              formatter={(value: number | undefined) =>
-                value !== undefined
+              formatter={(value) =>
+                typeof value === "number"
                   ? [`${value.toFixed(2)}%`, "Probability"]
                   : []
               }
@@ -1883,8 +1917,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
             />
 
             <Tooltip
-              formatter={(value: number | undefined) =>
-                value !== undefined
+              formatter={(value) =>
+                typeof value === "number"
                   ? [
                       `₹${value.toLocaleString("en-IN")}`,
                       "Revenue",
@@ -2173,8 +2207,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
                   />
 
                   <Tooltip
-                    formatter={(value: number | undefined) =>
-                      value !== undefined
+                    formatter={(value) =>
+                      typeof value === "number"
                         ? [
                             `₹${value.toLocaleString("en-IN")}`,
                             "Revenue",
@@ -2290,8 +2324,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -2434,8 +2468,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
         />
 
         <Tooltip
-          formatter={(value: number | undefined) =>
-            value !== undefined
+          formatter={(value) =>
+            typeof value === "number"
               ? [
                   `₹${value.toLocaleString("en-IN")}`,
                   "Revenue",
@@ -2654,8 +2688,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",
@@ -2832,8 +2866,8 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
           />
 
           <Tooltip
-            formatter={(value: number | undefined) =>
-              value !== undefined
+            formatter={(value) =>
+              typeof value === "number"
                 ? [
                     `₹${value.toLocaleString("en-IN")}`,
                     "Revenue",

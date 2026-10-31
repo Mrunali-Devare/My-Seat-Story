@@ -9,9 +9,12 @@ Kaggle dataset. So we cannot join by title. Instead we:
   4. write a Supabase migration (tables + data + 2 SQL functions).
 
 Run:  python export_site.py
-Then apply the file created in supabase/migrations/ to your database.
+It also writes src/data/movie-clusters.json and movie-similarity.json,
+which the website bundles. Optionally apply the file created in
+supabase/migrations/ to your database too.
 (Re-run this script whenever the website catalog changes.)
 """
+import json
 import os
 import re
 from pathlib import Path
@@ -26,6 +29,7 @@ from sklearn.preprocessing import Normalizer
 BASE = Path(__file__).resolve().parent
 PROJECT = BASE.parent.parent
 MIGRATION = PROJECT / "supabase" / "migrations" / "20261013000000_cluster_recommendations.sql"
+SITE_DATA = PROJECT / "src" / "data"
 
 SIMILAR_PER_MOVIE = 30     # how many similar movies we keep for each movie
 GMM_MIN_WEIGHT = 0.05      # ignore GMM clusters with less than 5% probability
@@ -54,7 +58,7 @@ if not url or not key:
 
 response = requests.get(
     f"{url}/rest/v1/movies",
-    params={"select": "id,title,description,genres", "limit": 1000},
+    params={"select": "id,title,description,genres,release_date,status,rating", "limit": 1000},
     headers={"apikey": key, "Authorization": f"Bearer {key}"},
     timeout=60,
 )
@@ -315,3 +319,23 @@ GRANT EXECUTE ON FUNCTION public.get_personalized_recommendations(TEXT, INT) TO 
 MIGRATION.write_text(migration, encoding="utf-8")
 print("\nWrote", MIGRATION.relative_to(PROJECT))
 print("Cluster rows:", len(assignments), " Similarity rows:", len(pairs))
+
+
+# ---------- 7. write the JSON files the website bundles ----------
+clusters_json = {algorithm: {} for algorithm in ALGORITHMS}
+for m, a, c, label, w in assignments:
+    clusters_json[a].setdefault(m, []).append([c, label, w])
+similarity_json = {}
+for m, s, score in pairs:
+    similarity_json.setdefault(m, []).append([s, score])
+
+lines = []
+for algorithm in ALGORITHMS:
+    entries = [f"    {json.dumps(m)}: {json.dumps(v)}" for m, v in clusters_json[algorithm].items()]
+    lines.append(f"  {json.dumps(algorithm)}: {{\n" + ",\n".join(entries) + "\n  }")
+(SITE_DATA / "movie-clusters.json").write_text("{\n" + ",\n".join(lines) + "\n}\n", encoding="utf-8")
+(SITE_DATA / "movie-similarity.json").write_text(json.dumps(similarity_json, separators=(",", ":")), encoding="utf-8")
+site[["id", "title", "genres", "release_date", "status", "rating"]].to_json(
+    BASE / "data" / "site_movies.json", orient="records", force_ascii=False
+)
+print("Wrote src/data/movie-clusters.json and src/data/movie-similarity.json")

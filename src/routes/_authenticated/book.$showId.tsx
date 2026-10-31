@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Clock, MapPin, CreditCard, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Poster, Backdrop } from "@/components/ui/poster";
@@ -10,6 +10,7 @@ import { SeatGrid, type SeatRow } from "@/components/seats/SeatGrid";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { formatShowDateOnly, formatShowTimeOnly, inr } from "@/lib/format";
+import { createBooking, getBookedSeatIds } from "@/lib/demo-store";
 import { toast } from "sonner";
 
 const LOCK_MINUTES = 5;
@@ -19,7 +20,6 @@ export const Route = createFileRoute("/_authenticated/book/$showId")({
 });
 
 function BookPage() {
-  const selectedRef = useRef<Set<string>>(new Set());
   const { showId } = Route.useParams();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -31,10 +31,6 @@ function BookPage() {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-  selectedRef.current = selected;
-}, [selected]);
-
-  useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
@@ -44,7 +40,7 @@ function BookPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shows")
-        .select("id, start_time, base_price, screens(name, theaters(name,city,address)), movies(title, poster_url, duration_minutes, certificate, languages)")
+        .select("id, start_time, base_price, screens(name, theaters(name,city,address)), movies(id, title, poster_url, duration_minutes, certificate, languages)")
         .eq("id", showId).maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
@@ -52,7 +48,8 @@ function BookPage() {
     },
   });
 
-  const { data: seats = [], refetch } = useQuery({
+  // Seat layout comes from Supabase; which seats are taken comes from the demo's local bookings.
+  const { data: seats = [] } = useQuery({
     queryKey: ["seats", showId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,46 +57,15 @@ function BookPage() {
         .select("id, show_id, row_label, col_num, seat_label, seat_type, price, status, locked_by, locked_until")
         .eq("show_id", showId);
       if (error) throw error;
-      return (data ?? []) as SeatRow[];
+      const booked = getBookedSeatIds(showId);
+      return ((data ?? []) as SeatRow[]).map((s) => ({
+        ...s,
+        status: booked.has(s.id) ? ("booked" as const) : ("available" as const),
+        locked_by: null,
+        locked_until: null,
+      }));
     },
-    refetchInterval: 8000,
   });
-
-  // Realtime updates
-  useEffect(() => {
-    const ch = supabase.channel(`seats:${showId}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "show_seats", filter: `show_id=eq.${showId}` }, () => refetch())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [showId, refetch]);
-
-  
-  // Release this user's seat locks when leaving the booking page.
-  useEffect(() => {
-    return () => {
-      const ids = Array.from(selected);
-
-      if (ids.length > 0 && user) {
-        void Promise.all(
-          ids.map((seatId) =>
-            supabase.rpc("release_show_seat", {
-              p_show_id: showId,
-              p_seat_id: seatId,
-            })
-          )
-        ).then((results) => {
-          const failed = results.filter((result) => result.error);
-
-          if (failed.length > 0) {
-            console.error("Some seat locks could not be released:", failed);
-          }
-        });
-      }
-    };
-    // This cleanup runs on unmount; see note below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
 
   const total = useMemo(() => {
     let t = 0;
@@ -109,161 +75,91 @@ function BookPage() {
 
   const selectedSeats = seats.filter((s) => selected.has(s.id));
 
-  
-const toggleSeat = async (seat: SeatRow) => {
-  if (!user) return;
+  // Selecting a seat starts (or keeps) a local hold timer; nothing is written anywhere until payment.
+  const toggleSeat = (seat: SeatRow) => {
+    if (!user) return;
 
-  if (selected.has(seat.id)) {
-    const { data, error } = await supabase.rpc("release_show_seat", {
-      p_show_id: showId,
-      p_seat_id: seat.id,
-    });
-
-    if (error) {
-      console.error("UNLOCK SEAT ERROR:", error);
-      return toast.error(`Could not release seat: ${error.message}`);
+    if (selected.has(seat.id)) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(seat.id);
+        return next;
+      });
+      return;
     }
 
-    if (!data) {
-      return toast.error("This seat is no longer held by you.");
-    }
-
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.delete(seat.id);
-      return next;
-    });
-
-    if (selected.size <= 1) {
-      setLockExpiry(null);
-    }
-  } else {
-    if (selected.size >= 10) {
-      return toast.error("Max 10 seats per booking");
-    }
-
-    const { data, error } = await supabase.rpc("lock_show_seat", {
-      p_show_id: showId,
-      p_seat_id: seat.id,
-    });
-
-    if (error) {
-      console.error("LOCK SEAT ERROR:", error);
-      await refetch();
-      return toast.error(`Could not select seat: ${error.message}`);
-    }
-
-    if (!data) {
-      await refetch();
+    if (selected.size >= 10) return toast.error("Max 10 seats per booking");
+    if (getBookedSeatIds(showId).has(seat.id)) {
+      qc.invalidateQueries({ queryKey: ["seats", showId] });
       return toast.error("Seat is no longer available");
     }
 
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.add(seat.id);
-      return next;
-    });
-
-    // Use the expiry returned by the database, not the browser clock.
-    setLockExpiry(new Date(data).getTime());
-  }
-
-  await qc.invalidateQueries({ queryKey: ["seats", showId] });
-};
+    setSelected((prev) => new Set(prev).add(seat.id));
+    if (!lockExpiry) setLockExpiry(Date.now() + LOCK_MINUTES * 60 * 1000);
+  };
 
   // Auto-release on timer
-  
-useEffect(() => {
-  if (!lockExpiry || selected.size === 0 || now < lockExpiry) return;
+  useEffect(() => {
+    if (!lockExpiry) return;
+    if (!selected.size) {
+      setLockExpiry(null);
+      return;
+    }
+    if (now > lockExpiry) {
+      setSelected(new Set());
+      setLockExpiry(null);
+      toast.error("Your seat hold expired. Please reselect.");
+    }
+  }, [now, lockExpiry, selected]);
 
-  let cancelled = false;
+  const handlePay = async () => {
+    if (!user || selected.size === 0) return;
+    setPaying(true);
+    try {
+      // Simulate payment delay; mock payments always succeed.
+      await new Promise((r) => setTimeout(r, 1400));
 
-  const releaseExpiredSeats = async () => {
-    if (user) {
-      const ids = Array.from(selected);
-
-      const results = await Promise.all(
-        ids.map((seatId) =>
-          supabase.rpc("release_show_seat", {
-            p_show_id: showId,
-            p_seat_id: seatId,
-          })
-        )
-      );
-
-      if (results.some((result) => result.error)) {
-        console.error("Some seat releases failed:", results);
+      const booked = getBookedSeatIds(showId);
+      if (selectedSeats.some((s) => booked.has(s.id))) {
+        setSelected(new Set());
+        qc.invalidateQueries({ queryKey: ["seats", showId] });
+        throw new Error("Some seats were just booked. Please reselect.");
       }
+
+      const booking = createBooking({
+        user_id: user.id,
+        show_id: showId,
+        total_amount: total,
+        seats: selectedSeats.map((s) => ({ id: s.id, seat_label: s.seat_label, price: Number(s.price) })),
+        show: {
+          start_time: show!.start_time,
+          screen_name: (show as any)?.screens?.name ?? null,
+          theater: theater
+            ? { name: theater.name, city: theater.city, address: theater.address ?? null }
+            : null,
+          movie: movie
+            ? {
+                id: movie.id ?? null,
+                title: movie.title,
+                poster_url: movie.poster_url ?? null,
+                duration_minutes: movie.duration_minutes ?? null,
+                certificate: movie.certificate ?? null,
+              }
+            : null,
+        },
+      });
+
+      qc.invalidateQueries({ queryKey: ["seats", showId] });
+      qc.invalidateQueries({ queryKey: ["my-bookings"] });
+      toast.success("Booking confirmed!");
+      router.navigate({ to: "/tickets/$bookingId", params: { bookingId: booking.id } });
+    } catch (e: any) {
+      toast.error(e?.message || "Payment failed");
+    } finally {
+      setPaying(false);
+      setShowPay(false);
     }
-
-    if (cancelled) return;
-
-    setSelected(new Set());
-    setLockExpiry(null);
-
-    await qc.invalidateQueries({ queryKey: ["seats", showId] });
-    toast.error("Your seat hold expired. Please reselect.");
   };
-
-  void releaseExpiredSeats();
-
-  return () => {
-    cancelled = true;
-  };
-}, [now, lockExpiry, selected, user, showId, qc]);
-
-  
-const handlePay = async () => {
-  if (!user || selected.size === 0 || paying) return;
-
-  setPaying(true);
-
-  try {
-    const seatIds = Array.from(selected);
-
-    // The database verifies ownership, expiry, and prices,
-    // then confirms the entire booking atomically.
-    const { data: bookingId, error } = await supabase.rpc(
-      "confirm_mock_booking",
-      {
-        p_show_id: showId,
-        p_seat_ids: seatIds,
-      }
-    );
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!bookingId) {
-      throw new Error("The booking could not be confirmed.");
-    }
-
-    setSelected(new Set());
-    setLockExpiry(null);
-
-    await qc.invalidateQueries({ queryKey: ["seats", showId] });
-    await qc.invalidateQueries({ queryKey: ["bookings"] });
-
-    toast.success("Booking confirmed! (Mock payment)");
-
-    await router.navigate({
-      to: "/tickets/$bookingId",
-      params: { bookingId },
-    });
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "The booking could not be completed.";
-
-    toast.error(message);
-    await refetch();
-  } finally {
-    setPaying(false);
-    setShowPay(false);
-  }
-};
 
   const movie = (show as any)?.movies;
   const theater = (show as any)?.screens?.theaters;

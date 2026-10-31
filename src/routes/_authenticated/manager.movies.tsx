@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { DEMO_READ_ONLY, DEMO_READ_ONLY_MESSAGE } from "@/lib/demo-auth";
 import {
   getNowPlayingMovies,
   getMovieDetails,
@@ -30,6 +31,7 @@ function ManagerMovies() {
     queryFn: async () => (await supabase.from("movies").select("*").order("created_at", { ascending: false })).data ?? [],
   });
   const importFromTMDB = async () => {
+  if (DEMO_READ_ONLY) return toast.info(DEMO_READ_ONLY_MESSAGE);
   try {
     toast.info("Fetching current movies from TMDB...");
 
@@ -84,6 +86,7 @@ function ManagerMovies() {
   }
 };
 const updateTMDBDetails = async () => {
+  if (DEMO_READ_ONLY) return toast.info(DEMO_READ_ONLY_MESSAGE);
   try {
     toast.info("Updating movie details from TMDB...");
 
@@ -196,6 +199,7 @@ const updateTMDBDetails = async () => {
 };
 
   const create = async () => {
+    if (DEMO_READ_ONLY) return toast.info(DEMO_READ_ONLY_MESSAGE);
     if (!form.title) return toast.error("Title required");
     const { error } = await supabase.from("movies").insert({
       title: form.title,

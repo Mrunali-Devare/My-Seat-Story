@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { CheckCircle2, Download, Film, MapPin, Calendar, Clock, Ticket as TicketIcon, ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
+import { cancelBooking, getBooking } from "@/lib/demo-store";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { formatShowDateOnly, formatShowTimeOnly, inr } from "@/lib/format";
@@ -17,15 +18,15 @@ function TicketPage() {
   const { bookingId } = Route.useParams();
   const [qr, setQr] = useState<string>("");
 
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
   const { data: booking, isLoading } = useQuery({
-    queryKey: ["booking", bookingId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id, booking_code, total_amount, status, payment_status, created_at, shows(start_time, screens(name, theaters(name,city,address)), movies(title, poster_url, duration_minutes, certificate)), booking_seats(seat_label, price)")
-        .eq("id", bookingId).maybeSingle();
-      if (error) throw error;
-      if (!data) throw notFound();
+    queryKey: ["booking", bookingId, user?.id],
+    queryFn: () => {
+      const data = getBooking(bookingId);
+      // Tickets are private to the demo user who booked them.
+      if (!data || data.user_id !== user?.id) throw notFound();
       return data;
     },
   });
@@ -36,29 +37,15 @@ function TicketPage() {
       .then(setQr).catch(() => {});
   }, [booking]);
 
-  
-const cancel = async () => {
-  if (!booking) return;
-
-  if (!confirm("Cancel this booking? Its seats will be released.")) {
-    return;
-  }
-
-  const { data, error } = await supabase.rpc("cancel_mock_booking", {
-    p_booking_id: booking.id,
-  });
-
-  if (error) {
-    return toast.error(error.message);
-  }
-
-  if (!data) {
-    return toast.error("The booking could not be cancelled.");
-  }
-
-  toast.success("Booking cancelled. No real payment or refund was processed.");
-  location.reload();
-};
+  const cancel = async () => {
+    if (!booking) return;
+    if (!confirm("Cancel this booking? Seats will be released.")) return;
+    cancelBooking(booking.id);
+    toast.success("Booking cancelled. Refund initiated.");
+    qc.invalidateQueries({ queryKey: ["booking", bookingId] });
+    qc.invalidateQueries({ queryKey: ["my-bookings"] });
+    qc.invalidateQueries({ queryKey: ["seats", booking.show_id] });
+  };
 
   const download = () => {
     if (!qr) return;
@@ -72,10 +59,10 @@ const cancel = async () => {
     <div className="min-h-screen bg-background"><SiteHeader /><div className="container mx-auto px-4 py-20 text-muted-foreground">Loading ticket…</div></div>
   );
 
-  const movie = (booking as any).shows?.movies;
-  const theater = (booking as any).shows?.screens?.theaters;
-  const screen = (booking as any).shows?.screens?.name;
-  const startTime = (booking as any).shows?.start_time;
+  const movie = booking.show.movie;
+  const theater = booking.show.theater;
+  const screen = booking.show.screen_name;
+  const startTime = booking.show.start_time;
   const cancelled = booking.status === "cancelled";
 
   return (
@@ -125,7 +112,7 @@ const cancel = async () => {
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Seats</p>
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  {(booking as any).booking_seats.map((s: any) => (
+                  {booking.seats.map((s) => (
                     <span key={s.seat_label} className="rounded-md bg-primary/15 px-2 py-1 text-sm font-semibold text-primary-glow">{s.seat_label}</span>
                   ))}
                 </div>
