@@ -35,3 +35,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
+.vercel
+
+# Python / ML artifacts
+__pycache__/
+*.pyc
+ml/.env
+ml/datasets/
+ml/**/*.joblib

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Clock, MapPin, CreditCard, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Poster, Backdrop } from "@/components/ui/poster";
 import { useAuth } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SeatGrid, type SeatRow } from "@/components/seats/SeatGrid";
@@ -282,7 +283,7 @@ const handlePay = async () => {
 
         {show && movie && theater && (
           <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
-            {movie.poster_url && <img src={movie.poster_url} alt={movie.title} className="h-20 w-14 rounded-md object-cover" />}
+            <div className="h-20 w-14 shrink-0 overflow-hidden rounded-md"><Poster src={movie.poster_url} title={movie.title} compact /></div>
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-xl font-bold sm:text-2xl">{movie.title}</h1>
               <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

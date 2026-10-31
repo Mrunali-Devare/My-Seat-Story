@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, MapPin, Ticket, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Poster, Backdrop } from "@/components/ui/poster";
 import { useAuth } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +52,7 @@ function BookingsPage() {
             return (
               <Link key={b.id} to="/tickets/$bookingId" params={{ bookingId: b.id }}
                     className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:border-primary/40">
-                {movie?.poster_url && <img src={movie.poster_url} alt={movie.title} className="h-20 w-14 shrink-0 rounded-md object-cover" />}
+                <div className="h-20 w-14 shrink-0 overflow-hidden rounded-md"><Poster src={movie?.poster_url} title={movie?.title ?? "Movie"} compact /></div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="truncate font-semibold">{movie?.title}</h3>

@@ -110,6 +110,13 @@ type AgglomerativeViewerSegment = {
   segment: string;
   silhouette_score: number;
 };
+type AprioriRule = {
+  antecedent_movie: string;
+  consequent_movie: string;
+  support: number;
+  confidence: number;
+  lift: number;
+};
 type DecisionTreeShow = {
   show_id: string;
   movie_title: string;
@@ -155,143 +162,6 @@ type RevenuePrediction = {
   actual_revenue: number;
   predicted_revenue: number;
 };
-
-type ClassificationMetrics = {
-  accuracy: number;
-  precision: number;
-  recall: number;
-  f1Score: number;
-  samples: number;
-};
-
-function getClassificationMetrics(
-  predictions: Array<{
-    actual_popularity: string;
-    predicted_popularity: string;
-  }>
-): ClassificationMetrics | null {
-  const valid = predictions.filter(
-    (p) =>
-      p.actual_popularity != null &&
-      p.predicted_popularity != null &&
-      String(p.actual_popularity).trim() !== "" &&
-      String(p.predicted_popularity).trim() !== ""
-  );
-
-  if (valid.length === 0) return null;
-
-  const normalize = (value: string) =>
-    String(value).trim().toLowerCase();
-
-  const labels = Array.from(
-    new Set(
-      valid.flatMap((p) => [
-        normalize(p.actual_popularity),
-        normalize(p.predicted_popularity),
-      ])
-    )
-  );
-
-  const correct = valid.filter(
-    (p) =>
-      normalize(p.actual_popularity) ===
-      normalize(p.predicted_popularity)
-  ).length;
-
-  let precisionSum = 0;
-  let recallSum = 0;
-  let f1Sum = 0;
-
-  for (const label of labels) {
-    let tp = 0;
-    let fp = 0;
-    let fn = 0;
-
-    for (const p of valid) {
-      const actual = normalize(p.actual_popularity);
-      const predicted = normalize(p.predicted_popularity);
-
-      if (actual === label && predicted === label) tp++;
-      else if (actual !== label && predicted === label) fp++;
-      else if (actual === label && predicted !== label) fn++;
-    }
-
-    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
-    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
-    const f1 =
-      precision + recall > 0
-        ? (2 * precision * recall) / (precision + recall)
-        : 0;
-
-    precisionSum += precision;
-    recallSum += recall;
-    f1Sum += f1;
-  }
-
-  return {
-    accuracy: (correct / valid.length) * 100,
-    precision: (precisionSum / labels.length) * 100,
-    recall: (recallSum / labels.length) * 100,
-    f1Score: (f1Sum / labels.length) * 100,
-    samples: valid.length,
-  };
-}
-
-function getRegressionMetrics(
-  predictions: Array<{
-    actual_revenue: number;
-    predicted_revenue: number;
-  }>
-) {
-  const valid = predictions
-    .map((p) => ({
-      actual: Number(p.actual_revenue),
-      predicted: Number(p.predicted_revenue),
-    }))
-    .filter(
-      (p) =>
-        Number.isFinite(p.actual) &&
-        Number.isFinite(p.predicted)
-    );
-
-  if (valid.length === 0) return null;
-
-  const mean =
-    valid.reduce((sum, p) => sum + p.actual, 0) / valid.length;
-
-  const mae =
-    valid.reduce(
-      (sum, p) => sum + Math.abs(p.actual - p.predicted),
-      0
-    ) / valid.length;
-
-  const mse =
-    valid.reduce(
-      (sum, p) => sum + (p.actual - p.predicted) ** 2,
-      0
-    ) / valid.length;
-
-  const totalVariance = valid.reduce(
-    (sum, p) => sum + (p.actual - mean) ** 2,
-    0
-  );
-
-  return {
-    mae,
-    rmse: Math.sqrt(mse),
-    r2:
-      totalVariance > 0
-        ? 1 -
-          valid.reduce(
-            (sum, p) => sum + (p.actual - p.predicted) ** 2,
-            0
-          ) /
-            totalVariance
-        : null,
-    samples: valid.length,
-  };
-}
-
 type OlapCityTheatreMovie = {
   city: string;
   theatre_name: string;
@@ -738,6 +608,18 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
     },
   });
 
+  const aprioriRulesQuery = useQuery({
+    queryKey: ["apriori-rules"],
+    refetchInterval: 15000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_apriori_rules");
+
+      if (error) throw error;
+
+      return (data ?? []) as AprioriRule[];
+    },
+  });
+
   const { data: decisionTreeData = [], isLoading: decisionTreeLoading } =
     useQuery({
       queryKey: ["decision-tree-shows"],
@@ -905,38 +787,6 @@ const [pivotCity, setPivotCity] = useState<string | null>(null);
       };
     }
   );
-  
-const decisionTreeMetrics =
-  getClassificationMetrics(decisionTreePredictions);
-
-const naiveBayesMetrics =
-  getClassificationMetrics(naiveBayesPredictions);
-
-const regressionMetrics =
-  getRegressionMetrics(revenuePredictions);
-
-const classificationModels = [
-  {
-    name: "Decision Tree",
-    metrics: decisionTreeMetrics,
-  },
-  {
-    name: "Naïve Bayes",
-    metrics: naiveBayesMetrics,
-  },
-].filter(
-  (model): model is {
-    name: string;
-    metrics: ClassificationMetrics;
-  } => model.metrics !== null
-);
-
-const bestModel =
-  classificationModels.length > 0
-    ? [...classificationModels].sort(
-        (a, b) => b.metrics.f1Score - a.metrics.f1Score
-      )[0]
-    : null;
 
 
   if (isLoading) {
@@ -1051,7 +901,7 @@ const bestModel =
                   dataKey="total_revenue"
                   name="Revenue"
                   radius={[6, 6, 0, 0]}
-                fill="#477fd0" />
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1113,7 +963,7 @@ const bestModel =
                   dataKey="total_revenue"
                   name="Revenue"
                   radius={[0, 6, 6, 0]}
-                fill="#477fd0" />
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1174,7 +1024,7 @@ const bestModel =
             dataKey="total_revenue"
             name="Revenue"
             radius={[6, 6, 0, 0]}
-          fill="#477fd0" />
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -1227,17 +1077,17 @@ const bestModel =
             <Bar
               dataKey="positive_reviews"
               name="Positive"
-            fill="#477fd0" />
+            />
 
             <Bar
               dataKey="neutral_reviews"
               name="Neutral"
-            fill="#477fd0" />
+            />
 
             <Bar
               dataKey="negative_reviews"
               name="Negative"
-            fill="#477fd0" />
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -1350,7 +1200,7 @@ const bestModel =
             dataKey="total_spending"
             name="Total Spending"
             radius={[0, 6, 6, 0]}
-          fill="#477fd0" />
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -1413,9 +1263,9 @@ const bestModel =
         }
       />
       <Bar
-        dataKey="average_spending"
+        dataKey="total_spending"
         name="Average Spending"
-       fill="#477fd0">
+      >
         {kMeansClusterSummary.map((entry) => (
           <Cell key={entry.cluster} />
         ))}
@@ -1530,7 +1380,7 @@ const bestModel =
                 dataKey="total_spending"
                 name="Total Spending"
                 radius={[6, 6, 0, 0]}
-              fill="#477fd0" />
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1627,140 +1477,118 @@ const bestModel =
     </div>
   </CardContent>
 </Card>
-
-<Card className="mt-6">
+<Card>
   <CardHeader>
-    <CardTitle>Model Evaluation & Comparison</CardTitle>
+    <CardTitle>Apriori Movie Associations</CardTitle>
     <CardDescription>
-      Compare movie popularity classifiers using Accuracy,
-      Precision, Recall and F1-score.
+      Movie viewing patterns discovered from viewer transactions
     </CardDescription>
   </CardHeader>
 
-  <CardContent className="space-y-6">
-    {bestModel && (
-      <div className="rounded-xl border p-5">
-        <p className="text-sm text-muted-foreground">
-          Best Classification Model (by F1-score)
-        </p>
-        <h3 className="mt-1 text-2xl font-bold">
-          {bestModel.name}
-        </h3>
-        <p className="mt-2 text-sm">
-          F1-score: {bestModel.metrics.f1Score.toFixed(2)}%
-        </p>
-      </div>
-    )}
+  <CardContent>
+    <div className="space-y-8">
 
-    {classificationModels.length === 0 ? (
-      <p className="text-sm text-muted-foreground">
-        Model metrics will appear when valid actual and
-        predicted popularity labels are available.
-      </p>
-    ) : (
+      {/* ASSOCIATION RULES CHART */}
+      <div>
+        <h3 className="mb-4 text-lg font-semibold">
+          Movie Association Lift
+        </h3>
+
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={aprioriRulesQuery.data ?? []}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 20,
+                bottom: 100,
+              }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                opacity={0.2}
+              />
+
+              <XAxis
+                dataKey="consequent_movie"
+                angle={-45}
+                textAnchor="end"
+                interval={0}
+                height={120}
+                tick={{ fontSize: 10 }}
+              />
+
+              <YAxis
+                tickFormatter={(value) => value.toFixed(1)}
+              />
+
+              <Tooltip
+                formatter={(value: number | undefined) =>
+                  value !== undefined
+                    ? [value.toFixed(2), "Lift"]
+                    : []
+                }
+              />
+
+              <Legend />
+
+              <Bar
+                dataKey="lift"
+                name="Association Lift"
+                radius={[6, 6, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* EXISTING TABLE */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Model</TableHead>
-              <TableHead>Samples</TableHead>
-              <TableHead>Accuracy</TableHead>
-              <TableHead>Precision</TableHead>
-              <TableHead>Recall</TableHead>
-              <TableHead>F1-score</TableHead>
+              <TableHead>Movie Watched</TableHead>
+              <TableHead>Recommended Movie</TableHead>
+              <TableHead>Support</TableHead>
+              <TableHead>Confidence</TableHead>
+              <TableHead>Lift</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {classificationModels.map((model) => (
-              <TableRow key={model.name}>
+            {aprioriRulesQuery.data?.map((rule, index) => (
+              <TableRow
+                key={`${rule.antecedent_movie}-${rule.consequent_movie}-${index}`}
+              >
                 <TableCell className="font-medium">
-                  {model.name}
-                  {bestModel?.name === model.name && (
-                    <span className="ml-2 text-xs text-green-600">
-                      Best
-                    </span>
-                  )}
+                  {rule.antecedent_movie}
                 </TableCell>
-                <TableCell>{model.metrics.samples}</TableCell>
+
                 <TableCell>
-                  {model.metrics.accuracy.toFixed(2)}%
+                  {rule.consequent_movie}
                 </TableCell>
+
                 <TableCell>
-                  {model.metrics.precision.toFixed(2)}%
+                  {(Number(rule.support) * 100).toFixed(0)}%
                 </TableCell>
+
                 <TableCell>
-                  {model.metrics.recall.toFixed(2)}%
+                  {(Number(rule.confidence) * 100).toFixed(0)}%
                 </TableCell>
+
                 <TableCell>
-                  {model.metrics.f1Score.toFixed(2)}%
+                  {Number(rule.lift).toFixed(2)}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-    )}
 
-    <div className="rounded-xl border p-5">
-      <h3 className="font-semibold">
-        Linear Regression — Revenue Evaluation
-      </h3>
-
-      {regressionMetrics ? (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              Samples
-            </p>
-            <p className="text-xl font-bold">
-              {regressionMetrics.samples}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">
-              MAE
-            </p>
-            <p className="text-xl font-bold">
-              {inr(regressionMetrics.mae)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">
-              RMSE
-            </p>
-            <p className="text-xl font-bold">
-              {inr(regressionMetrics.rmse)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">
-              R² Score
-            </p>
-            <p className="text-xl font-bold">
-              {regressionMetrics.r2 === null
-                ? "N/A"
-                : regressionMetrics.r2.toFixed(4)}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <p className="mt-2 text-sm text-muted-foreground">
-          Revenue evaluation will appear when actual and
-          predicted revenue values are available.
-        </p>
-      )}
     </div>
-
-    <p className="text-xs text-muted-foreground">
-      Classification metrics use macro-averaged Precision,
-      Recall and F1-score across the popularity classes.
-      Linear Regression is evaluated separately because it
-      predicts numeric revenue rather than popularity classes.
-    </p>
   </CardContent>
 </Card>
-
 <Card className="mt-6">
   <CardHeader>
     <CardTitle>Decision Tree — Movie Popularity</CardTitle>
@@ -1826,7 +1654,7 @@ const bestModel =
                 dataKey="prediction_probability"
                 name="Prediction Probability"
                 radius={[6, 6, 0, 0]}
-              fill="#477fd0" />
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1936,7 +1764,7 @@ const bestModel =
               dataKey="prediction_probability_pct"
               name="Prediction Probability (%)"
               radius={[6, 6, 0, 0]}
-            fill="#477fd0" />
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -1991,10 +1819,7 @@ const bestModel =
                   </TableCell>
 
                   <TableCell>
-                    {(Number(prediction.prediction_probability) <= 1
-                      ? Number(prediction.prediction_probability) * 100
-                      : Number(prediction.prediction_probability)
-                    ).toFixed(2)}%
+                    {(Number(prediction.prediction_probability) * 100).toFixed(2)}%
                   </TableCell>
                 </TableRow>
               ))}
@@ -2074,13 +1899,13 @@ const bestModel =
               dataKey="actual_revenue"
               name="Actual Revenue"
               radius={[6, 6, 0, 0]}
-            fill="#477fd0" />
+            />
 
             <Bar
               dataKey="predicted_revenue"
               name="Predicted Revenue"
               radius={[6, 6, 0, 0]}
-            fill="#477fd0" />
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -2364,7 +2189,7 @@ const bestModel =
                     dataKey="total_revenue"
                     name="Movie Revenue"
                     radius={[6, 6, 0, 0]}
-                  fill="#477fd0" />
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -2481,7 +2306,7 @@ const bestModel =
             dataKey="total_revenue"
             name="City Revenue"
             radius={[6, 6, 0, 0]}
-          fill="#477fd0" />
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -2625,7 +2450,7 @@ const bestModel =
           dataKey="total_revenue"
           name="City Revenue"
           radius={[6, 6, 0, 0]}
-        fill="#477fd0" />
+        />
       </BarChart>
     </ResponsiveContainer>
   </div>
@@ -2845,7 +2670,7 @@ const bestModel =
             dataKey="revenue"
             name="Dice Revenue"
             radius={[6, 6, 0, 0]}
-          fill="#477fd0" />
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -3031,7 +2856,7 @@ const bestModel =
               dataKey={movie}
               stackId="revenue"
               name={movie}
-            fill="#477fd0" />
+            />
           ))}
         </BarChart>
       </ResponsiveContainer>

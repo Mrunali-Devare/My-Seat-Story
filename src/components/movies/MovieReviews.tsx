@@ -306,27 +306,21 @@ const ratingDistributionQuery = useQuery({
               Review submitted successfully.
             </p>
           )}
-<Button
-  className="mt-4"
-  disabled={submitReviewMutation.isPending}
-  onClick={() => {
-    if (rating === 0) {
-      alert("Please select a star rating from 1 to 5.");
-      return;
-    }
 
-    if (!comment.trim()) {
-      alert("Please write your review.");
-      return;
-    }
-
-    submitReviewMutation.mutate();
-  }}
->
-  {submitReviewMutation.isPending
-    ? "Submitting..."
-    : "Submit Review"}
-</Button>
+          <Button
+            className="mt-4"
+            disabled={
+              rating === 0 ||
+              submitReviewMutation.isPending
+            }
+            onClick={() =>
+              submitReviewMutation.mutate()
+            }
+          >
+            {submitReviewMutation.isPending
+              ? "Submitting..."
+              : "Submit Review"}
+          </Button>
         </div>
 
         {/* EXISTING REVIEWS */}

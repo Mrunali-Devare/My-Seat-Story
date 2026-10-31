@@ -44,63 +44,62 @@
   --color-seat-vip: var(--seat-vip);
   --color-seat-recliner: var(--seat-recliner);
 
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-sans: "Geist", system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.75rem;
 
-  /* Rich black background */
-  --background: oklch(0.15 0.02 280);
-  --foreground: oklch(0.95 0.01 280);
+  /* Warm ink surfaces, one ember accent */
+  --background: oklch(0.145 0.006 60);
+  --foreground: oklch(0.96 0.006 75);
 
-  --card: oklch(0.18 0.03 280);
-  --card-foreground: oklch(0.95 0.01 280);
+  --card: oklch(0.185 0.007 60);
+  --card-foreground: oklch(0.96 0.006 75);
 
-  --popover: oklch(0.18 0.03 280);
-  --popover-foreground: oklch(0.95 0.01 280);
+  --popover: oklch(0.2 0.008 60);
+  --popover-foreground: oklch(0.96 0.006 75);
 
-  /* Crimson red primary */
-  --primary: oklch(0.55 0.20 25);
-  --primary-foreground: oklch(0.98 0.01 280);
-  --primary-glow: oklch(0.65 0.22 25);
+  --primary: oklch(0.7 0.16 48);
+  --primary-foreground: oklch(0.17 0.02 50);
+  --primary-glow: oklch(0.76 0.15 55);
 
-  --secondary: oklch(0.22 0.04 280);
-  --secondary-foreground: oklch(0.93 0.01 280);
+  --secondary: oklch(0.23 0.008 60);
+  --secondary-foreground: oklch(0.93 0.006 75);
 
-  --muted: oklch(0.20 0.03 280);
-  --muted-foreground: oklch(0.65 0.02 280);
+  --muted: oklch(0.21 0.007 60);
+  --muted-foreground: oklch(0.7 0.01 70);
 
-  --accent: oklch(0.28 0.06 280);
-  --accent-foreground: oklch(0.95 0.01 280);
+  --accent: oklch(0.27 0.01 60);
+  --accent-foreground: oklch(0.96 0.006 75);
 
-  /* Luxurious gold accent */
-  --gold: oklch(0.75 0.15 85);
-  --gold-foreground: oklch(0.15 0.02 280);
+  /* gold collapsed into the single accent */
+  --gold: oklch(0.7 0.16 48);
+  --gold-foreground: oklch(0.17 0.02 50);
 
-  --destructive: oklch(0.55 0.20 25);
+  --destructive: oklch(0.6 0.19 25);
   --destructive-foreground: oklch(0.98 0.01 280);
-  --success: oklch(0.65 0.15 145);
+  --success: oklch(0.7 0.13 155);
 
-  --border: oklch(0.28 0.04 280 / 40%);
-  --input: oklch(0.22 0.04 280);
-  --ring: oklch(0.75 0.15 85);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(0.23 0.008 60);
+  --ring: oklch(0.7 0.16 48);
 
-  --chart-1: oklch(0.55 0.20 25);
-  --chart-2: oklch(0.75 0.15 85);
-  --chart-3: oklch(0.65 0.15 145);
-  --chart-4: oklch(0.60 0.18 25);
-  --chart-5: oklch(0.65 0.22 25);
+  --chart-1: oklch(0.7 0.16 48);
+  --chart-2: oklch(0.75 0.1 90);
+  --chart-3: oklch(0.7 0.13 155);
+  --chart-4: oklch(0.65 0.1 230);
+  --chart-5: oklch(0.6 0.19 25);
 
-  --sidebar: oklch(0.16 0.03 280);
-  --sidebar-foreground: oklch(0.90 0.01 280);
-  --sidebar-primary: oklch(0.55 0.20 25);
-  --sidebar-primary-foreground: oklch(0.98 0.01 280);
-  --sidebar-accent: oklch(0.22 0.04 280);
-  --sidebar-accent-foreground: oklch(0.90 0.01 280);
-  --sidebar-border: oklch(0.28 0.04 280 / 40%);
-  --sidebar-ring: oklch(0.55 0.20 25);
+  --sidebar: oklch(0.165 0.006 60);
+  --sidebar-foreground: oklch(0.9 0.006 75);
+  --sidebar-primary: oklch(0.7 0.16 48);
+  --sidebar-primary-foreground: oklch(0.17 0.02 50);
+  --sidebar-accent: oklch(0.23 0.008 60);
+  --sidebar-accent-foreground: oklch(0.9 0.006 75);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.7 0.16 48);
 
     /* Seat tokens - improved contrast */
   --seat-available: oklch(0.32 0.07 280);
@@ -113,32 +112,44 @@
   
   --gradient-hero: linear-gradient(135deg, oklch(0.20 0.05 280) 0%, oklch(0.15 0.02 280) 50%, oklch(0.18 0.06 280) 100%);
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --gradient-gold: linear-gradient(135deg, oklch(0.75 0.15 85) 0%, oklch(0.80 0.18 85) 100%);
-  --gradient-crimson: linear-gradient(135deg, oklch(0.55 0.20 25) 0%, oklch(0.65 0.22 25) 100%);
-  --shadow-glow: 0 25px 50px -12px color-mix(in oklab, var(--gold) 25%, transparent);
-  --shadow-card: 0 10px 40px -10px oklch(0 0 0 / 0.6);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --gradient-gold: var(--gradient-primary);
+  --gradient-crimson: var(--gradient-primary);
+  --shadow-glow: 0 18px 40px -16px color-mix(in oklab, var(--primary) 45%, transparent);
+  --shadow-card: 0 12px 32px -14px oklch(0.05 0.01 60 / 0.8);
+  --shadow-glass: 0 8px 28px -8px oklch(0.05 0.01 60 / 0.6);
 }
 
 .dark {
   /* App is dark by default; .dark mirrors :root */
-  --background: oklch(0.16 0.04 290);
-  --foreground: oklch(0.97 0.01 280);
+  --background: oklch(0.145 0.006 60);
+  --foreground: oklch(0.96 0.006 75);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
+  html,
+  body {
+    /* `clip` (not `hidden`) so animated/scaled children can't create a horizontal
+       scrollbar, while position: sticky on the header keeps working. */
+    overflow-x: clip;
+    max-width: 100%;
+  }
   body {
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
   }
+  html { scroll-behavior: smooth; }
+  p { text-wrap: pretty; }
+  h1, h2, h3 { text-wrap: balance; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
   }
 }
 
@@ -168,7 +179,7 @@
 }
 
 @utility bg-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -244,64 +255,17 @@
   100% { left: 100%; }
 }
 
+/* Film-grain overlay for surface texture */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
 
-/* Manager-only theme: soft slate surfaces with muted blue accents.
-   Scoped to .manager-theme so the customer-facing site remains unchanged. */
-.manager-theme {
-  --background: #e8edf4;
-  --foreground: #26364b;
-  --card: #f7f9fc;
-  --card-foreground: #26364b;
-  --popover: #ffffff;
-  --popover-foreground: #26364b;
-  --primary: #426a9d;
-  --primary-foreground: #ffffff;
-  --primary-glow: #6b95ca;
-  --secondary: #dce5f0;
-  --secondary-foreground: #30445f;
-  --muted: #e1e8f1;
-  --muted-foreground: #64758d;
-  --accent: #dce8f7;
-  --accent-foreground: #2d527f;
-  --border: #d2dce8;
-  --input: #e5ebf3;
-  --ring: #6b95ca;
-  --chart-1: #477fd0;
-  --chart-2: #20ad9a;
-  --chart-3: #f2aa42;
-  --chart-4: #8b72cf;
-  --chart-5: #e77878;
-  --sidebar: #304967;
-  --sidebar-foreground: #f5f8fc;
-  --sidebar-primary: #477fd0;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #42618a;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #49617f;
-  --sidebar-ring: #91b7eb;
-  --shadow-card: 0 5px 18px rgba(47, 70, 99, 0.08);
-  color: var(--foreground);
-  background: var(--background);
-  min-height: 100vh;
-}
-.manager-theme .bg-background { background-color: var(--background) !important; }
-.manager-theme .bg-card,
-.manager-theme .bg-card\/40 { background-color: var(--card) !important; }
-.manager-theme .text-foreground { color: var(--foreground) !important; }
-.manager-theme .text-muted-foreground { color: var(--muted-foreground) !important; }
-.manager-theme .border-border,
-.manager-theme .border-border\/60 { border-color: var(--border) !important; }
-.manager-theme .bg-primary\/20 { background-color: #d5e4f7 !important; }
-.manager-theme .shadow-card { box-shadow: var(--shadow-card) !important; }
-.manager-theme .recharts-cartesian-grid line { stroke: #dce4ee; }
-.manager-theme .recharts-cartesian-axis-tick-value { fill: #586b84; font-size: 12px; }
-.manager-theme .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: #ffffff !important; border: 1px solid #d5deea !important;
-  border-radius: 10px; box-shadow: 0 8px 24px rgba(40, 60, 85, 0.12);
-}
-.manager-theme .recharts-legend-item-text { color: #52657d !important; }
-.manager-theme table thead { background: #eaf0f7; }
-.manager-theme table tbody tr:hover { background: #edf3fa; }
-.manager-theme input, .manager-theme select, .manager-theme textarea {
-  background-color: #f8fafd; color: #26364b; border-color: #cbd7e5;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

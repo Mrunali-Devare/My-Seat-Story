@@ -21,7 +21,7 @@ function ManagerLayout() {
 
         {!allowed ? (
           <div className="mt-8 rounded-2xl border border-dashed border-border bg-card/40 p-8 text-center text-muted-foreground">
-            You don't have manager access. Go to your profile to enable manager mode (demo).
+            You don't have manager access. Sign in with the demo manager account to see this area.
           </div>
         ) : (
           <>

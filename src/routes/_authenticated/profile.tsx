@@ -42,15 +42,6 @@ function ProfilePage() {
     toast.success("Profile updated");
   };
 
-  const becomeManager = async () => {
-    if (!user) return;
-    if (roles.includes("manager")) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role: "manager" as const });
-    if (error) return toast.error(error.message);
-    toast.success("You're now a Theater Manager. Reloading…");
-    setTimeout(() => location.reload(), 600);
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -77,9 +68,6 @@ function ProfilePage() {
         <div className="mt-6 rounded-2xl border border-border/60 bg-card p-6 shadow-card">
           <h2 className="text-lg font-semibold">Roles</h2>
           <p className="mt-1 text-sm text-muted-foreground">{roles.length ? roles.join(", ") : "customer"}</p>
-          {!roles.includes("manager") && (
-            <Button variant="outline" className="mt-4" onClick={becomeManager}>Become a theater manager (demo)</Button>
-          )}
         </div>
       </div>
     </div>

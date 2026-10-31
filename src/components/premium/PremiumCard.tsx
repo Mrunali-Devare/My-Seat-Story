@@ -10,7 +10,7 @@ interface PremiumCardProps {
 }
 
 export function PremiumCard({ children, className, variant = "default", hover = true }: PremiumCardProps) {
-  const baseStyles = "relative rounded-xl border transition-all duration-500";
+  const baseStyles = "relative rounded-xl border transition-[box-shadow,border-color,background-color] duration-300 focus-within:ring-2 focus-within:ring-[color:var(--color-gold)]/50";
   
   const variantStyles = {
     default: "bg-[color:var(--color-card)] border-[color:var(--color-border)] shadow-card hover:shadow-glow hover:border-[color:var(--color-gold)]/30",
@@ -18,18 +18,13 @@ export function PremiumCard({ children, className, variant = "default", hover = 
     spotlight: "bg-[color:var(--color-card)] border-[color:var(--color-border)] shadow-card hover:shadow-glow"
   };
 
-  const hoverStyles = hover ? "hover:scale-[1.02] hover:-translate-y-1" : "";
-
   return (
     <motion.div
-      className={cn(baseStyles, variantStyles[variant], hoverStyles, className)}
+      className={cn(baseStyles, variantStyles[variant], className)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      whileHover={hover ? { scale: 1.02, y: -4 } : {}}
-      whileTap={hover ? { scale: 0.98 } : {}}
-      onFocus={hover ? (e) => e.currentTarget.classList.add("ring-2", "ring-[color:var(--color-gold)]/50") : undefined}
-      onBlur={hover ? (e) => e.currentTarget.classList.remove("ring-2", "ring-[color:var(--color-gold)]/50") : undefined}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      whileHover={hover ? { y: -4, transition: { duration: 0.2 } } : undefined}
     >
       {variant === "spotlight" && (
         <motion.div

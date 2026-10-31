@@ -414,6 +414,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_demo_manager: { Args: never; Returns: undefined }
       create_show_with_seats: {
         Args: {
           p_base_price: number

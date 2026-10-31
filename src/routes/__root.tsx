@@ -1,3 +1,4 @@
+import logo from "@/assets/My Seat Story Cinema Logo.png";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -68,7 +69,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "My Seat Story — Book movie tickets" },
       { name: "description", content: "Discover movies, pick your seats, and book tickets in seconds." },
-      { name: "author", content: "My Seat Story" },
+      { name: "author", content: "Cineverse" },
       { property: "og:title", content: "My Seat Story — Book movie tickets" },
       { property: "og:description", content: "Discover movies, pick your seats, and book tickets in seconds." },
       { property: "og:type", content: "website" },
@@ -79,10 +80,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/41c2b0ee-2f8e-4e3b-b6d4-b26bdbfc41e5/id-preview-34851526--9befb18b-ec43-4a4e-ad8c-1cb10c1e1d7b.lovable.app-1781533759805.png" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: logo },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" },
     ],
   }),
   shellComponent: RootShell,

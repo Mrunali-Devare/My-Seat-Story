@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { DEMO_MANAGER_EMAIL, ensureDemoSession, ensureDemoManager, isDemoEmail } from "@/lib/demo-auth";
 
 type AuthState = {
   user: User | null;
   session: Session | null;
   loading: boolean;
   roles: string[];
+  isDemo: boolean;
 };
 
-const AuthContext = createContext<AuthState>({ user: null, session: null, loading: true, roles: [] });
+const AuthContext = createContext<AuthState>({ user: null, session: null, loading: true, roles: [], isDemo: false });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -22,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
     });
-    supabase.auth.getSession().then(({ data }) => {
+    ensureDemoSession().then(() => supabase.auth.getSession()).then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
@@ -30,20 +32,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  const userId = user?.id;
+  const userEmail = user?.email;
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setRoles([]);
       return;
     }
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => setRoles((data ?? []).map((r) => r.role as string)));
-  }, [user]);
+    let cancelled = false;
+    (userEmail === DEMO_MANAGER_EMAIL ? ensureDemoManager() : Promise.resolve())
+      .then(() => supabase.from("user_roles").select("role").eq("user_id", userId))
+      .then(({ data }) => {
+        if (!cancelled) setRoles((data ?? []).map((r) => r.role as string));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, userEmail]);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, roles }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, session, loading, roles, isDemo: isDemoEmail(user?.email) }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

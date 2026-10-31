@@ -32,7 +32,7 @@ function TicketPage() {
 
   useEffect(() => {
     if (!booking) return;
-    QRCode.toDataURL(`My Seat Story:${booking.booking_code}`, { width: 320, margin: 1, color: { dark: "#1a1140", light: "#ffffff" } })
+    QRCode.toDataURL(`CINEVERSE:${booking.booking_code}`, { width: 320, margin: 1, color: { dark: "#1a1140", light: "#ffffff" } })
       .then(setQr).catch(() => {});
   }, [booking]);
 
